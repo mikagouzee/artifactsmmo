@@ -1,0 +1,28 @@
+{
+  "name": "Cooked Chicken",
+  "code": "cooked_chicken",
+  "level": 1,
+  "type": "consumable",
+  "subtype": "food",
+  "description": "Tender cooked chicken that restores health. Simple, but satisfying.",
+  "conditions": [],
+  "effects": [
+    {
+      "code": "heal",
+      "value": 80,
+      "description": "Heal 80 HP when the item is used."
+    }
+  ],
+  "craft": {
+    "skill": "cooking",
+    "level": 1,
+    "items": [
+      {
+        "code": "raw_chicken",
+        "quantity": 1
+      }
+    ],
+    "quantity": 1
+  },
+  "tradeable": true
+}

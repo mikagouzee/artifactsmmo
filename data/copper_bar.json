@@ -1,0 +1,22 @@
+{
+  "name": "Copper Bar",
+  "code": "copper_bar",
+  "level": 1,
+  "type": "resource",
+  "subtype": "bar",
+  "description": "A bar of refined copper, ready for crafting into basic weapons and armor.",
+  "conditions": [],
+  "effects": [],
+  "craft": {
+    "skill": "mining",
+    "level": 1,
+    "items": [
+      {
+        "code": "copper_ore",
+        "quantity": 10
+      }
+    ],
+    "quantity": 1
+  },
+  "tradeable": true
+}

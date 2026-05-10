@@ -1,0 +1,22 @@
+{
+  "name": "Iron Bar",
+  "code": "iron_bar",
+  "level": 10,
+  "type": "resource",
+  "subtype": "bar",
+  "description": "A solid bar of refined iron, ready for crafting into weapons, armor, and tools.",
+  "conditions": [],
+  "effects": [],
+  "craft": {
+    "skill": "mining",
+    "level": 10,
+    "items": [
+      {
+        "code": "iron_ore",
+        "quantity": 10
+      }
+    ],
+    "quantity": 1
+  },
+  "tradeable": true
+}

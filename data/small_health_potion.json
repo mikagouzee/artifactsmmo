@@ -1,0 +1,34 @@
+{
+  "name": "Small Health Potion",
+  "code": "small_health_potion",
+  "level": 5,
+  "type": "utility",
+  "subtype": "potion",
+  "description": "A compact potion that restores a bit of health when most needed. Fits in any pocket.",
+  "conditions": [
+    {
+      "code": "level",
+      "operator": "gt",
+      "value": 4
+    }
+  ],
+  "effects": [
+    {
+      "code": "restore",
+      "value": 30,
+      "description": "Restores 30 HP at the start of the turn if the player has lost more than 50% of their health points."
+    }
+  ],
+  "craft": {
+    "skill": "alchemy",
+    "level": 5,
+    "items": [
+      {
+        "code": "sunflower",
+        "quantity": 3
+      }
+    ],
+    "quantity": 1
+  },
+  "tradeable": true
+}
