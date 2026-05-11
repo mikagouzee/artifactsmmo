@@ -3,7 +3,7 @@ import os
 
 import httpx
 from controllers.action_controller import ActionController
-from workers import farm_alchemy, farm_iron, farm_combat, farm_copper
+from workers import farm_alchemy, farm_iron, farm_combat, farm_copper, farm_mining, farm_wood
 
 
 
@@ -24,17 +24,17 @@ async def main():
         heroes = await controller.get_all_heroes()
         semet = heroes[0]
         ethina = heroes[1]
-        kharl = heroes[2]
+        kaarl = heroes[2]
         alchie = heroes[3]
         bobby = heroes[4]
 
         # 3. On dispatch
         tasks = [
-            farm_iron(semet, controller).run(),
+            farm_copper(semet, controller).run(),
+            farm_copper(kaarl, controller).run(),
             farm_combat(ethina, controller).run(),
-            farm_copper(kharl, controller).run(),
-            farm_copper(bobby, controller).run(),
-            farm_alchemy(alchie, controller).run()
+            farm_alchemy(bobby, controller).run(),
+            farm_combat(alchie, controller).run()
         ]
 
         # 4. On lance tout en parallèle

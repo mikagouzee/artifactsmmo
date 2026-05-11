@@ -11,7 +11,7 @@ async def go_equip(my_hero, item_code, controller:ActionController, slot="weapon
 
   if find_in_bag(my_hero.inventory, item_code):
     print(f'{my_hero.name} found {item_code} in their bag!.')
-    my_hero = await controller.equip(my_hero, item_code, slot=slot, quantity=quantity)
+    my_hero = await controller.equip(my_hero, item_code, slot=slot, qtty=quantity)
   else:
     dest = await controller.get_closest_map(my_hero, content_code='bank', content_type='bank')
     if dest and not check_location(my_hero, dest.x, dest.y):
@@ -22,7 +22,7 @@ async def go_equip(my_hero, item_code, controller:ActionController, slot="weapon
       
       if find_in_bag(my_hero.inventory, item_code):
         print({f'There was a {item_code} in the bank -> equipping.'})
-        my_hero = await controller.equip(my_hero, item_code, slot=slot, quantity=quantity)
+        my_hero = await controller.equip(my_hero, item_code, slot=slot, qtty=quantity)
       else:
         print(f"You don't have any {item_code} ! Try crafting one")
 

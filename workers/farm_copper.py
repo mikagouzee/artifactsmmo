@@ -18,7 +18,7 @@ class farm_copper:
       #We can gather approximately 100 copper -> 100 * 27 sec -> 45min
       self.my_hero = await go_gather(self.my_hero,self.controller, 'copper_rocks')
       
-      self.my_hero = await go_craft(self.my_hero, self.controller, copper, 'mining')
+      # self.my_hero = await go_craft(self.my_hero, self.controller, copper, 'mining')
 
       #this is also very fast, as we deposit approximately 9-10 bars for a total of 40 sec cooldown
       self.my_hero = await go_deposit_item(self.my_hero, self.controller)

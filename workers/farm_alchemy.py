@@ -16,20 +16,20 @@ class farm_alchemy:
     shp = item(**shp_json)
     
     while True:  
-      if (self.my_hero.alchemy_level < 16):
+      # if (self.my_hero.alchemy_level < 16):
         self.my_hero = await go_gather(self.my_hero, self.controller, 'sunflower_field', 'apprentice_gloves')
         
-        self.my_hero = await go_craft(self.my_hero, self.controller, shp, shp.craft.skill)
+        # self.my_hero = await go_craft(self.my_hero, self.controller, shp, shp.craft.skill)
 
         self.my_hero = await go_deposit_item(self.my_hero, self.controller)
       
-      elif (self.my_hero.alchemy_level < 21):
-        self.my_hero = await go_gather(self.my_hero, self.controller, 'gudgeon_spot', 'fishing_net')
-        # self.my_hero = await go_gather(self.my_hero, self.controller, 'nettle', 'apprentice_gloves')
-        # self.my_hero = await go_craft(self.my_hero, self.controller, shp, 'alchemy')
+      # elif (self.my_hero.alchemy_level < 21):
+      #   self.my_hero = await go_gather(self.my_hero, self.controller, 'gudgeon_spot', 'fishing_net')
+      #   # self.my_hero = await go_gather(self.my_hero, self.controller, 'nettle', 'apprentice_gloves')
+      #   # self.my_hero = await go_craft(self.my_hero, self.controller, shp, 'alchemy')
 
-        self.my_hero = await go_deposit_item(self.my_hero, self.controller)
+      #   self.my_hero = await go_deposit_item(self.my_hero, self.controller)
       #give time to the API
-      await asyncio.sleep(1)
+        await asyncio.sleep(1)
       
       
