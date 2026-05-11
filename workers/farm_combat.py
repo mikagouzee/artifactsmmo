@@ -15,16 +15,17 @@ class farm_combat:
     cooked_chicken_json=read_json("cooked_chicken.json")
     cooked_chicken = item(**cooked_chicken_json)
     while True:
-      if self.my_hero.level <= 10: 
+      if self.my_hero.level <= 5:
         self.my_hero = await go_fight(self.my_hero, "chicken", self.controller)
         self.my_hero = await go_craft(self.my_hero, self.controller, cooked_chicken, 'cooking')
         self.my_hero = await go_deposit_item(self.my_hero, self.controller)
-      else:
+      elif self.my_hero.level <= 11: 
+        self.my_hero = await go_fight(self.my_hero, "yellow_slime", self.controller)
+        #self.my_hero = await go_craft(self.my_hero, self.controller, cooked_chicken, 'cooking')
+        self.my_hero = await go_deposit_item(self.my_hero, self.controller)
+      elif self.my_hero.level <= 18:
         self.my_hero = await go_fight(self.my_hero, "red_slime", self.controller)
         self.my_hero = await go_deposit_item(self.my_hero, self.controller)
-      # elif self.my_hero.level <= 20:
-      #   self.my_hero = await go_fight(self.my_hero, "green_slime", self.controller)
-      #   self.my_hero = await go_deposit_item(self.my_hero, self.controller)
       #give time to the API
       await asyncio.sleep(1)
 

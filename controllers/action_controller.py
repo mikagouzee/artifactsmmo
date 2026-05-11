@@ -2,6 +2,7 @@ import asyncio
 from dataclasses import replace
 from helpers import closest_coordinates
 from models import hero, world_map
+from models.beanies.map_tile import MapContent, MapTile
 
 class ActionController:
   def __init__(self, http_client):
@@ -156,3 +157,6 @@ class ActionController:
         if dist < shortest:
             destination, shortest = map_obj, dist
     return destination
+
+ 
+ 

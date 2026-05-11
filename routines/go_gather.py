@@ -1,6 +1,5 @@
 from dataclasses import replace
-from controllers import gather, get_closest_map, move
-from controllers.action_controller import ActionController
+from controllers import ActionController
 from helpers import check_bag_weight, check_location
 from .go_equip import go_equip
 

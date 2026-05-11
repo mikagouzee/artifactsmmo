@@ -1,7 +1,5 @@
 from dataclasses import replace
-from controllers import get_closest_map, move
-from controllers.action_controller import ActionController
-from controllers.deposit import deposit
+from controllers import ActionController
 from helpers import find_in_bag, check_location
 from models import hero
 

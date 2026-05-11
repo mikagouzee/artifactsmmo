@@ -1,5 +1,5 @@
 
-from controllers.action_controller import ActionController
+from controllers import ActionController
 from helpers import find_in_bag, check_location
 from models import hero
 

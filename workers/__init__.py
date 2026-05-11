@@ -4,3 +4,4 @@ from .farm_copper import farm_copper
 from .farm_iron import farm_iron
 from .farm_mining import farm_mining
 from .farm_wood import farm_wood
+from .farm_sheep import farm_sheeps

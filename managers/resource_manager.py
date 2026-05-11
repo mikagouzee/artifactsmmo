@@ -1,0 +1,21 @@
+from managers.db_manager import DatabaseManager
+from models.beanies.resource import Resource
+
+
+async def get_best_resource(current_level:int, skill:str):
+  collection = DatabaseManager.get_collection("resources")
+    
+  # Requête MongoDB standard (asynchrone)
+  query = {
+      "skill": skill,
+      "level": {"$lte": current_level, "$gt": current_level - 10}
+  }
+  
+  # On trie par niveau descendant et on prend le premier
+  cursor = collection.find(query).sort("level", -1).limit(1)
+  results = await cursor.to_list(length=1)
+  
+  if not results:
+      # Fallback niveau 1
+      cursor = collection.find({"skill": skill}).sort("level", 1).limit(1)
+      results = await cursor.to_list(length=1)
