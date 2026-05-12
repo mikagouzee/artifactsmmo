@@ -1,5 +1,4 @@
 from managers.db_manager import DatabaseManager
-from models.beanies.resource import Resource
 
 
 async def get_best_resource(current_level:int, skill:str):

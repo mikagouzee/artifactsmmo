@@ -5,10 +5,7 @@ import httpx
 from controllers import ActionController, DbController
 
 from managers.db_manager import DatabaseManager
-from models.beanies import MapTile, Resource, ResourceDrop
 from workers import farm_alchemy, farm_combat, farm_copper, farm_mining, farm_sheeps
-
-
 
 async def main():
     BASE_URL = "https://api.artifactsmmo.com"
@@ -28,14 +25,13 @@ async def main():
         
         ##INIT DATABASE FOR MAPS
         await DatabaseManager.init_db()
-        mapcount = await MapTile.count()
-        if mapcount == 0:
-            db_controller.sync_world_map()
-        resource_count = await Resource.count()
-        if resource_count == 0:
-          await db_controller.sync_resources()
-        
-        # await action_controller.load_world_map()
+        map_count = await DatabaseManager.db["map_tiles"].count_documents({})
+        if map_count == 0:
+            await db_controller.sync_world_map()
+
+        res_count = await DatabaseManager.db["resources"].count_documents({})
+        if res_count == 0:
+            await db_controller.sync_resources()
 
         heroes = await action_controller.get_all_heroes()
         semet = heroes[0]

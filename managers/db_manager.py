@@ -1,7 +1,6 @@
 import os
 from pymongo.asynchronous.mongo_client import AsyncMongoClient
 from dotenv import load_dotenv
-from models.beanies import MapTile, Resource
 
 load_dotenv()
 
@@ -21,6 +20,11 @@ class DatabaseManager:
         cls._client = AsyncMongoClient(uri)
 
         cls.db = cls._client.get_database(db_name)
+
+        await cls.db["map_tiles"].create_index([("x", 1), ("y", 1)], unique=True)
+        await cls.db["map_tiles"].create_index("content.code")
+        await cls.db["resources"].create_index("code", unique=True)
+        await cls.db["resources"].create_index("skill")
 
         try:
             await cls._client.admin.command('ping')
