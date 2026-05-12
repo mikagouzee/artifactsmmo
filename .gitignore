@@ -66,3 +66,16 @@ mongodb_data/
 .mongo/
 .mongodb/
 .data/db/*
+data/db/*
+routines/__pycache__
+routines/__pycache__/*
+*/__pycache__/*
+# Python Cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# MongoDB Data
+# On ignore tout le dossier data/db pour éviter de versionner les fichiers WiredTiger
+data/db/
