@@ -1,5 +1,0 @@
-httpx
-
-pydantic
-python-dotenv
-os

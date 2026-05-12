@@ -65,6 +65,15 @@ class ActionController:
     resp = await self._request_wrapper("post", endpoint, json=payload)
     return await self.process_result(resp.json(), aHero)
 
+  async def deposit_gold(self, aHero):
+    await self._limiter()
+    endpoint = f'/my/{aHero.name}/action/bank/deposit/gold'
+  
+    payload = {"quantity": aHero.gold}
+        
+    resp = await self._request_wrapper("post", endpoint, json=payload)
+    return await self.process_result(resp.json(), aHero)
+
   async def equip(self, aHero, item_code, slot="weapon", qtty=1):
     await self._limiter()
     payload = {'code': item_code, 'slot': slot, 'quantity': qtty}
@@ -104,58 +113,32 @@ class ActionController:
     resp = await self._request_wrapper("post", f'/my/{aHero.name}/action/bank/withdraw/item', json=payload)
     return await self.process_result(resp.json(), aHero)
 
+  async def withdraw_items(self, aHero, items_list: list):
+    """
+    Withdraw multiple items from the bank.
+    
+    Args:
+        aHero: The hero withdrawing items
+        items_list: List of dicts with 'code' and 'quantity' keys
+                   e.g., [{"code": "copper_bar", "quantity": 5}, {"code": "raw_chicken", "quantity": 10}]
+    """
+    await self._limiter()
+    payload = [{'code': item['code'], 'quantity': item['quantity']} for item in items_list]
+    resp = await self._request_wrapper("post", f'/my/{aHero.name}/action/bank/withdraw/item', json=payload)
+    return await self.process_result(resp.json(), aHero)
+
   async def get_all_heroes(self):
     await self._limiter()
     resp = await self._request_wrapper("get", '/my/characters')
     data = resp.json()
     return [hero(**char) for char in data["data"]]
 
-  # async def get_all_maps(self, params=None):
-  #   resp = await self._request_wrapper("get", "/maps", params=params)
-  #   return resp.json()
-
-  # async def load_world_map(self):
-  #   if self._maps_cache:
-  #       return
-        
-  #   print("Chargement de la carte du monde en mémoire...")
-  #   page = 1
-  #   while True:
-  #       # Utilisation du wrapper pour le chargement initial aussi
-  #       response = await self._request_wrapper("get", "/maps", params={"page": page, "size": 100})
-  #       data = response.json()
-  #       self._maps_cache.extend(data["data"])
-        
-  #       if page >= (data["total"] // 100) + 1:
-  #           break
-  #       page += 1
-  #   print(f"{len(self._maps_cache)} maps chargées en cache.")
-
-  # async def get_closest_map(self, hero, content_type=None, content_code=None):
-  #   if not self._maps_cache:
-  #      await self.load_world_map()
-
-  #   filtered_maps = []
-  #   for m in self._maps_cache:
-  #     interactions = m.get("interactions", {})
-  #     content = interactions.get("content") if interactions else None
-  #     if not content: continue
-      
-  #     if (not content_type or content.get("type") == content_type) and \
-  #        (not content_code or content.get("code") == content_code):
-  #       filtered_maps.append(m)
-
-  #   if not filtered_maps: return None
-    
-  #   start = (hero.x, hero.y)
-  #   shortest = float('inf')
-  #   destination = None
-  #   for val in filtered_maps:
-  #       map_obj = world_map(**val)
-  #       dist = closest_coordinates(start, (map_obj.x, map_obj.y))
-  #       if dist < shortest:
-  #           destination, shortest = map_obj, dist
-  #   return destination
+ 
+  async def get_bank_inventory(self, aHero):
+    await self._limiter()
+    resp = await self._request_wrapper("get", f'/my/bank/items')
+    data = resp.json()
+    return data["data"]
 
  
  

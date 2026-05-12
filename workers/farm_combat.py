@@ -4,7 +4,7 @@ from controllers import ActionController, DbController
 from helpers.find_in_bag import check_bag_weight
 from managers import get_best_monster
 from models import hero
-from routines import go_craft, go_deposit_item, go_fight
+from routines import go_craft, go_deposit_item, go_fight, go_deposit_gold
 
 
 class farm_combat:
@@ -18,8 +18,9 @@ class farm_combat:
     # cooked_chicken = item(**cooked_chicken_json)
     max_weight = self.my_hero.inventory_max_items
     while True:
-      if check_bag_weight(self.my_hero.inventory) > max_weight:
+      if check_bag_weight(self.my_hero.inventory) == max_weight:
         self.my_hero = await go_deposit_item(self.my_hero, self.action, self.db)
+        self.my_hero = await go_deposit_gold(self.my_hero, self.action, self.db)
         continue
       
       target_monster = await get_best_monster(self.my_hero)

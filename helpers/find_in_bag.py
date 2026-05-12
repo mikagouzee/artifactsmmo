@@ -3,3 +3,4 @@ def find_in_bag(bag, item_code):
 
 def check_bag_weight(bag):
   return sum((x["quantity"] for x in bag))
+
