@@ -1,5 +1,5 @@
 # Python
-__pycache__/
+./*/__pycache__/*
 *.py[cod]
 *$py.class
 *.so
@@ -65,4 +65,4 @@ mongo_data/
 mongodb_data/
 .mongo/
 .mongodb/
-data/db/
+.data/db/*

@@ -41,6 +41,26 @@ class DbController:
             page += 1
         print("Synced WorldMap.")
 
+    async def sync_monsters(self):
+        collection = DatabaseManager.db["monsters"]
+        page = 1
+        
+        while True:
+            response = await self.http.get("/monsters?min_level=1", params={"page": page, "size": 100})
+            data = response.json()
+            monsters_data = data.get("data", [])
+
+            for monster in monsters_data:
+                await collection.replace_one(
+                    {"name": monster["name"], "code":monster["code"]},
+                    monster,
+                    upsert=True
+                )
+
+            if page >= data.get("pages", 1):
+                break
+            page += 1
+        print(f"Synced {len(monsters_data)} Monsters.")
 
     async def get_closest_map(self, hero, content_code: str, content_type:str):
         collection = DatabaseManager.db["map_tiles"]

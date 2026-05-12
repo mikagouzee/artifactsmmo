@@ -23,15 +23,9 @@ async def main():
         action_controller = ActionController(http_client)
         db_controller = DbController(http_client)
         
-        ##INIT DATABASE FOR MAPS
+        ##INIT DATABASE
         await DatabaseManager.init_db()
-        map_count = await DatabaseManager.db["map_tiles"].count_documents({})
-        if map_count == 0:
-            await db_controller.sync_world_map()
-
-        res_count = await DatabaseManager.db["resources"].count_documents({})
-        if res_count == 0:
-            await db_controller.sync_resources()
+        await sync_data(db_controller)
 
         heroes = await action_controller.get_all_heroes()
         semet = heroes[0]
@@ -51,6 +45,21 @@ async def main():
 
         # 4. On lance tout en parallèle
         await asyncio.gather(*tasks)
+
+
+async def sync_data(db_controller:DbController):
+    map_count = await DatabaseManager.db["map_tiles"].count_documents({})
+    if map_count == 0:
+        await db_controller.sync_world_map()
+
+    res_count = await DatabaseManager.db["resources"].count_documents({})
+    if res_count == 0:
+        await db_controller.sync_resources()
+
+    monster_count = await DatabaseManager.db["monsters"].count_documents({})
+    if monster_count == 0:
+        await db_controller.sync_monsters()
+
 
 if __name__ == "__main__":
     try:

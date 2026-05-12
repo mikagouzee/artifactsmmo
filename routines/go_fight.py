@@ -12,26 +12,23 @@ async def go_fight(my_hero, monster_code, action:ActionController, db:DbControll
     print(f'{my_hero.name} moving to {dest.x}{dest.y} to fight!')
     my_hero = await action.move(my_hero, dest.x, dest.y)
 
-  max_weight = my_hero.inventory_max_items
-
-  while check_bag_weight(my_hero.inventory) < max_weight:
-    if my_hero.hp < my_hero.max_hp:
-      if find_in_bag(my_hero.inventory, 'cooked_chicken') > 0:
-        print(f'{my_hero.name} eating to restore life.')
-        my_hero = await action.use_item(my_hero, 'cooked_chicken')
-      elif my_hero.hp <= my_hero.max_hp /2:
-        print(f'{my_hero.name} resting to restore life : it\'s Nap Time.')
-        my_hero = await action.rest(my_hero)
-      else:        
-        if dest and not check_location(my_hero, dest.x, dest.y):
-          print(f'{my_hero.name} moving to {dest.x}{dest.y} to fight!')
-          my_hero = await action.move(my_hero, dest.x, dest.y)
-          
-        my_hero = await action.fight(my_hero)
-    else:
+  if my_hero.hp < my_hero.max_hp:
+    if find_in_bag(my_hero.inventory, 'cooked_chicken') > 0:
+      print(f'{my_hero.name} eating to restore life.')
+      my_hero = await action.use_item(my_hero, 'cooked_chicken')
+    elif my_hero.hp <= my_hero.max_hp /2:
+      print(f'{my_hero.name} resting to restore life : it\'s Nap Time.')
+      my_hero = await action.rest(my_hero)
+    else:        
       if dest and not check_location(my_hero, dest.x, dest.y):
         print(f'{my_hero.name} moving to {dest.x}{dest.y} to fight!')
         my_hero = await action.move(my_hero, dest.x, dest.y)
+        
       my_hero = await action.fight(my_hero)
+  else:
+    if dest and not check_location(my_hero, dest.x, dest.y):
+      print(f'{my_hero.name} moving to {dest.x}{dest.y} to fight!')
+      my_hero = await action.move(my_hero, dest.x, dest.y)
+    my_hero = await action.fight(my_hero)
 
   return my_hero

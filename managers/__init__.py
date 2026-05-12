@@ -1,0 +1,1 @@
+from .monster_manager import get_best_monster

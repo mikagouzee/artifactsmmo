@@ -12,10 +12,10 @@ class DatabaseManager:
     async def init_db(cls):
         user = os.getenv("MONGO_USER")
         password = os.getenv("MONGO_PASSWORD")
-        host = os.getenv("MONGO_HOST", "localhost")
+        host = os.getenv("MONGO_HOST", "127.0.0.1")
         port = os.getenv("MONGO_PORT", "27017")
         db_name = os.getenv("MONGO_DB_NAME", "artifacts_mmo")
-
+        # uri = f"mongodb://{MONGO_USER}:{MONGO_PASSWORD}@localhost:27017/"
         uri = f"mongodb://{user}:{password}@{host}:{port}"
         cls._client = AsyncMongoClient(uri)
 
@@ -31,7 +31,9 @@ class DatabaseManager:
             await cls._client.admin.command('ping')
             print("Connected to mongo!")
         except Exception as e:
-            print(f'Error in connection : {e}')        
+            print(f'Error in connection : {e}')
+
+        
 
     @classmethod
     def get_collection(cls, name: str):
@@ -41,3 +43,5 @@ class DatabaseManager:
     async def close_db(cls):
         if cls._client:
             cls._client.close()
+
+        

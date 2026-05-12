@@ -1,6 +1,8 @@
 import asyncio
 from controllers import ActionController, DbController
 
+from helpers.find_in_bag import check_bag_weight
+from managers import get_best_monster
 from models import hero
 from routines import go_craft, go_deposit_item, go_fight
 
@@ -14,18 +16,15 @@ class farm_combat:
   async def run(self):
     # cooked_chicken_json=read_json("cooked_chicken.json")
     # cooked_chicken = item(**cooked_chicken_json)
+    max_weight = self.my_hero.inventory_max_items
     while True:
-      if self.my_hero.level <= 5:
-        self.my_hero = await go_fight(self.my_hero, "chicken", self.action, self.db)
-        # self.my_hero = await go_craft(self.my_hero, self.controller, cooked_chicken, 'cooking')
+      if check_bag_weight(self.my_hero.inventory) > max_weight:
         self.my_hero = await go_deposit_item(self.my_hero, self.action, self.db)
-      elif self.my_hero.level <= 11: 
-        self.my_hero = await go_fight(self.my_hero, "yellow_slime", self.action, self.db)
-        #self.my_hero = await go_craft(self.my_hero, self.controller, cooked_chicken, 'cooking')
-        self.my_hero = await go_deposit_item(self.my_hero, self.action, self.db)
-      elif self.my_hero.level <= 18:
-        self.my_hero = await go_fight(self.my_hero, "red_slime", self.action, self.db)
-        self.my_hero = await go_deposit_item(self.my_hero, self.action, self.db)
+        continue
+      
+      target_monster = await get_best_monster(self.my_hero)
+      self.my_hero = await go_fight(self.my_hero, target_monster, self.action, self.db)
+      
       #give time to the API
       await asyncio.sleep(1)
 
