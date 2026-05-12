@@ -30,8 +30,8 @@ async def main():
 
         # 3. On dispatch
         tasks = [
-            farm_copper(semet, controller).run(),
-            farm_copper(kaarl, controller).run(),
+            farm_combat(semet, controller).run(),
+            farm_mining(kaarl, controller).run(),
             farm_combat(ethina, controller).run(),
             farm_alchemy(bobby, controller).run(),
             farm_combat(alchie, controller).run()
