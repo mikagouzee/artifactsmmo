@@ -1,29 +1,23 @@
 import asyncio
-from controllers.action_controller import ActionController
-from helpers.find_in_bag import check_bag_weight
-from helpers.json_data_reader import read_json
+from controllers import ActionController, DbController
 from managers.resource_manager import get_best_resource
-from models import hero, item
-from routines import go_craft, go_deposit_item, go_fight, go_gather
+from models import hero
+from routines import go_deposit_item, go_gather
 
 
 class farm_mining:
-  def __init__(self, character: hero, controller:ActionController, target_level:int):
+  def __init__(self, character: hero, action:ActionController,db:DbController, target_level:int):
     self.my_hero = character
-    self.controller = controller
+    self.action = action
+    self.db = db
     self.target_level = target_level if target_level else self.my_hero.mining_level+10
 
   async def run(self):
-    copper_bar_json = read_json("copper_bar.json")
-    copper = item(**copper_bar_json)
-
-    iron_bar_json = read_json("iron_bar.json")
-    iron = item(**iron_bar_json)
-
+    
     while self.my_hero.mining_level < self.target_level:
-      target_code = get_best_resource(self.my_hero.mining_level, "mining")
-      self.my_hero = await go_gather(self.my_hero, self.controller, target_code)
-      self.my_hero = await go_deposit_item(self.my_hero, self.controller)
+      target_code = await get_best_resource(self.my_hero.mining_level, "mining")
+      self.my_hero = await go_gather(self.my_hero, self.action, self.db, target_code)
+      self.my_hero = await go_deposit_item(self.my_hero, self.action, self.db)
       await asyncio.sleep(1)
 
     return self.my_hero

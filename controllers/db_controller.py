@@ -1,5 +1,6 @@
 # db_controller.py
 from managers.db_manager import DatabaseManager
+from models.map_tile import MapTile
 
 class DbController:
     def __init__(self, http_client):
@@ -30,7 +31,7 @@ class DbController:
 
             for tile in maps_data:
                 await collection.replace_one(
-                    {"x": tile["x"], "y": tile["y"]}, # Clé unique par coordonnées
+                    {"x": tile["x"], "y": tile["y"], "layer":tile["layer"]}, # Clé unique par coordonnées
                     tile,
                     upsert=True
                 )
@@ -39,3 +40,22 @@ class DbController:
                 break
             page += 1
         print("Synced WorldMap.")
+
+
+    async def get_closest_map(self, hero, content_code: str, content_type:str):
+        collection = DatabaseManager.db["map_tiles"]
+        
+        cursor = collection.find({"interactions.content.code": content_code, "interactions.content.type":content_type})
+        targets = await cursor.to_list(length=100)
+        
+        if not targets:
+            return None
+        
+        # Calcul de la distance de Manhattan : |x1-x2| + |y1-y2|
+        closest = min(
+            targets, 
+            key=lambda t: abs(t["x"] - hero.x) + abs(t["y"] - hero.y)
+        )
+        if closest:
+            tile_obj = MapTile.model_validate(closest)
+            return tile_obj

@@ -1,22 +1,21 @@
 import asyncio
-from controllers.action_controller import ActionController
-from helpers.find_in_bag import check_bag_weight
-from helpers.json_data_reader import read_json
-from models import hero, item
-from routines import go_craft, go_deposit_item, go_fight
+from controllers import ActionController, DbController
+from models import hero
+from routines import go_deposit_item, go_fight
 
 
 class farm_sheeps:
-  def __init__(self, character: hero, controller:ActionController):
+  def __init__(self, character: hero, action:ActionController, db:DbController):
     self.my_hero = character
-    self.controller = controller
+    self.action = action
+    self.db = db
 
   async def run(self):
     
     while True:
     
-      self.my_hero = await go_fight(self.my_hero, "sheep", self.controller)
-      self.my_hero = await go_deposit_item(self.my_hero, self.controller)
+      self.my_hero = await go_fight(self.my_hero, "sheep", self.action, self.db)
+      self.my_hero = await go_deposit_item(self.my_hero, self.action, self.db)
       
       # elif self.my_hero.level <= 20:
       #   self.my_hero = await go_fight(self.my_hero, "green_slime", self.controller)

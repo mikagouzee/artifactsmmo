@@ -21,8 +21,9 @@ class DatabaseManager:
 
         cls.db = cls._client.get_database(db_name)
 
-        await cls.db["map_tiles"].create_index([("x", 1), ("y", 1)], unique=True)
+        await cls.db["map_tiles"].create_index([("x", 1), ("y", 1), ("layer",1)], unique=True)
         await cls.db["map_tiles"].create_index("content.code")
+        await cls.db["map_tiles"].create_index("content.type")
         await cls.db["resources"].create_index("code", unique=True)
         await cls.db["resources"].create_index("skill")
 
@@ -32,6 +33,9 @@ class DatabaseManager:
         except Exception as e:
             print(f'Error in connection : {e}')        
 
+    @classmethod
+    def get_collection(cls, name: str):
+        return cls.db[name]
 
     @classmethod
     async def close_db(cls):
