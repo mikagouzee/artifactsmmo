@@ -5,7 +5,7 @@ import httpx
 from controllers import ActionController, DbController
 
 from managers.db_manager import DatabaseManager
-from workers import farm, farm_combat
+from workers import farm, farm_combat, farm_craft
 
 async def main():
     BASE_URL = "https://api.artifactsmmo.com"
@@ -36,8 +36,8 @@ async def main():
 
         # 3. On dispatch
         tasks = [
-            farm(semet, action_controller, db_controller, "mining").run(),
-            farm(kaarl, action_controller, db_controller, "mining").run(),
+            farm_combat(semet, action_controller, db_controller).run(),
+            farm_combat(kaarl, action_controller, db_controller).run(),
             farm_combat(ethina, action_controller, db_controller).run(),
             farm_combat(bobby, action_controller, db_controller).run(),
             farm_combat(alchie, action_controller, db_controller).run()

@@ -8,7 +8,7 @@ async def get_best_monster(my_hero:hero):
 
     # Requête MongoDB standard (asynchrone)
     crt_level = my_hero.level
-    gt = max(1, crt_level-10)
+    gt = max(0, crt_level-10)
     query = {
         "level": {"$lte": crt_level, "$gt": gt}
     }

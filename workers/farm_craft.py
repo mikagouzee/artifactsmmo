@@ -2,11 +2,11 @@ import asyncio
 from controllers import ActionController, DbController
 from managers.item_manager import find_best_craft_item
 from models import hero
-from routines import go_craft, go_deposit_item
+from routines import go_craft, go_deposit_item, go_withdraw_items
 
 
 
-class farm_Craft:
+class farm_craft:
   def __init__(self, character: hero, action:ActionController, db:DbController, skill:str, target_level:int=None):
     self.my_hero = character
     self.action = action
@@ -19,10 +19,10 @@ class farm_Craft:
   async def run(self):
     
     while True:  
-        crt_level = getattr(self.my_hero, f"{self.skill}", 1)
+        crt_level = getattr(self.my_hero, f"{self.skill}_level", 1)
         bank_inventory = await self.action.get_bank_inventory(self.my_hero)
         target_item = await find_best_craft_item(crt_level, self.skill, bank_inventory)
-        self.my_hero = await go_withdraw(self.my_hero, self.action, self.db, target_item.craft.ingredients)
+        self.my_hero = await go_withdraw_items(self.my_hero, self.action, self.db, target_item.craft.ingredients)
         self.my_hero = await go_craft(target_item, self.my_hero, self.action, self.db, self.skill)
         self.my_hero = await go_deposit_item(self.my_hero, self.action, self.db, target_item.code)
 
