@@ -36,11 +36,11 @@ async def main():
 
         # 3. On dispatch
         tasks = [
-            farm_combat(semet, action_controller, db_controller).run(),
-            farm_combat(kaarl, action_controller, db_controller).run(),
-            farm_combat(ethina, action_controller, db_controller).run(),
-            farm_combat(bobby, action_controller, db_controller).run(),
-            farm_combat(alchie, action_controller, db_controller).run()
+            farm_craft(semet, action_controller, db_controller, "mining").run(),
+            # farm_combat(kaarl, action_controller, db_controller).run(),
+            # farm_combat(ethina, action_controller, db_controller).run(),
+            # farm_combat(bobby, action_controller, db_controller).run(),
+            # farm_combat(alchie, action_controller, db_controller).run()
         ]
 
         # 4. On lance tout en parallèle
@@ -59,6 +59,10 @@ async def sync_data(db_controller:DbController):
     monster_count = await DatabaseManager.db["monsters"].count_documents({})
     if monster_count == 0:
         await db_controller.sync_monsters()
+
+    items_count = await DatabaseManager.db["items"].count_documents({})
+    if items_count == 0:
+        await db_controller.sync_items()
 
 
 if __name__ == "__main__":

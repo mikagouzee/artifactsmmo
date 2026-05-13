@@ -14,6 +14,6 @@ async def go_withdraw_items(my_hero,action:ActionController,db:DbController, ite
     print(f'Moving to the bank : {dest.x} {dest.y}')
     my_hero = await action.move(my_hero, dest.x, dest.y)
     
-    my_hero = await action.withdraw_items(my_hero, items_list)
+  my_hero = await action.withdraw_items(my_hero, items_list)
 
   return my_hero

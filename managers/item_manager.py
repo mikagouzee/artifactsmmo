@@ -2,7 +2,7 @@ from managers.db_manager import DatabaseManager
 from models import hero
 
 
-async def find_best_craft_item(my_hero: hero, skill_name: str, bank_inventory: list = None) -> dict | None:
+async def find_best_craft_item(my_hero: hero, skill_name: str, bank_inventory: list = None) -> tuple | None:
     """
     Find the best item to craft to progress a skill based on available bank inventory.
     
@@ -40,8 +40,16 @@ async def find_best_craft_item(my_hero: hero, skill_name: str, bank_inventory: l
     if not candidates:
         return None
     
-    # Create a bank inventory lookup for fast access
-    bank_dict = {item["code"]: item["quantity"] for item in bank_inventory}
+    # Create a combined inventory lookup from both bank and hero inventory
+    combined_inventory = {item["code"]: item["quantity"] for item in bank_inventory}
+    
+    # Add hero inventory items
+    if my_hero.inventory:
+        for inv_item in my_hero.inventory:
+            code = inv_item["code"]
+            qty = inv_item["quantity"]
+            # Combine quantities if item exists in both
+            combined_inventory[code] = combined_inventory.get(code, 0) + qty
     
     best_item = None
     best_craftable_qty = 0
@@ -62,7 +70,7 @@ async def find_best_craft_item(my_hero: hero, skill_name: str, bank_inventory: l
             ingredient_code = required.get("code")
             ingredient_qty = required.get("quantity", 0)
             
-            available_qty = bank_dict.get(ingredient_code, 0)
+            available_qty = combined_inventory.get(ingredient_code, 0)
             
             # How many crafts can we do with this ingredient?
             times_can_craft = available_qty // ingredient_qty if ingredient_qty > 0 else 0
@@ -98,4 +106,4 @@ async def find_best_craft_item(my_hero: hero, skill_name: str, bank_inventory: l
     if best_item is None:
         return None
     
-    return {best_item.get("code"): best_craftable_qty}
+    return (best_item, best_craftable_qty)

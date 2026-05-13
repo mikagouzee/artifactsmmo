@@ -1,5 +1,6 @@
 import asyncio
 from controllers import ActionController, DbController
+from helpers.find_in_bag import find_in_bag
 from managers.item_manager import find_best_craft_item
 from models import hero
 from routines import go_craft, go_deposit_item, go_withdraw_items
@@ -19,11 +20,17 @@ class farm_craft:
   async def run(self):
     
     while True:  
-        crt_level = getattr(self.my_hero, f"{self.skill}_level", 1)
+        # crt_level = getattr(self.my_hero, f"{self.skill}_level", 1)
         bank_inventory = await self.action.get_bank_inventory(self.my_hero)
-        target_item = await find_best_craft_item(crt_level, self.skill, bank_inventory)
-        self.my_hero = await go_withdraw_items(self.my_hero, self.action, self.db, target_item.craft.ingredients)
-        self.my_hero = await go_craft(target_item, self.my_hero, self.action, self.db, self.skill)
+        target_item = await find_best_craft_item(self.my_hero, self.skill, bank_inventory)
+
+        in_pockets = find_in_bag(self.my_hero, target_item[0]["craft"]["items"])
+        if not in_pockets:
+          self.my_hero = await go_withdraw_items(self.my_hero, self.action, self.db, target_item[0]["craft"]["items"])
+        else:
+          target_item[1] = target_item[1] - in_pockets
+
+        self.my_hero = await go_craft(self.my_hero, self.action, self.db,target_item[0], self.skill)
         self.my_hero = await go_deposit_item(self.my_hero, self.action, self.db, target_item.code)
 
 
