@@ -13,7 +13,7 @@ class ActionController:
   async def _request_wrapper(self, method, endpoint, **kwargs):
     """Middleware central pour monitorer et compter chaque appel API"""
     self.total_api_calls += 1
-    print(f"📡 [API CALL #{self.total_api_calls}] {method.upper()} {endpoint} | Args: {kwargs.get('params', kwargs.get('json', ''))}")
+    # print(f"📡 [API CALL #{self.total_api_calls}] {method.upper()} {endpoint} | Args: {kwargs.get('params', kwargs.get('json', ''))}")
     
     if method.lower() == "get":
         return await self.http.get(endpoint, **kwargs)

@@ -6,7 +6,7 @@ from models import item
 
 async def go_craft(my_hero, action:ActionController,db:DbController, desired:item, workshop_code:str, qtty:int=1):  
   print(f"{my_hero.name} will now try to craft {desired["code"]} at {workshop_code}")
-  if not can_craft(my_hero, desired.craft):
+  if not can_craft(my_hero, desired["craft"]):
     return my_hero
 
   dest = await db.get_closest_map(my_hero, content_type="workshop", content_code=workshop_code)
@@ -14,8 +14,8 @@ async def go_craft(my_hero, action:ActionController,db:DbController, desired:ite
     print(f"{my_hero.name} moves to {dest.x} {dest.y}")
     my_hero = await action.move(my_hero, dest.x, dest.y)
   
-  while(can_craft(my_hero, desired.craft)):
-    my_hero = await action.craft(my_hero, desired["code"], qtty)
+  
+  my_hero = await action.craft(my_hero, desired["code"], qtty)
 
   return my_hero
 

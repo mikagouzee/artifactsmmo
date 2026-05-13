@@ -25,14 +25,14 @@ async def find_best_craft_item(my_hero: hero, skill_name: str, bank_inventory: l
         return None
     
     current_skill_level = getattr(my_hero, skill_level_attr)
-    
+    min_level_to_progress = current_skill_level - 10
     # Query items collection for craftable items
     collection = DatabaseManager.get_collection("items")
     
     # Find items with craft recipes for this skill, at or below current skill level
     query = {
         "craft.skill": skill_name,
-        "craft.level": {"$lte": current_skill_level}
+        "craft.level": {"$lte": current_skill_level, "$gt": min_level_to_progress}
     }
     
     candidates = await collection.find(query).to_list(length=None)
