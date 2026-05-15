@@ -21,3 +21,14 @@ async def get_best_resource(current_level:int, skill:str):
         results = await cursor.to_list(length=1)
 
     return results[0].get("code")
+
+async def get_resource_name_by_drop(drop_code:str):
+    collection = DatabaseManager.get_collection("resources")
+
+    query = {
+        "drops.code": drop_code
+    }
+    cursor = collection.find(query).limit(1)
+    results = await cursor.to_list(length=1)
+
+    return results[0]

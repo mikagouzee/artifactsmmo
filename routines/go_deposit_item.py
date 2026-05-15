@@ -16,6 +16,6 @@ async def go_deposit_item(my_hero,action:ActionController,db:DbController, resou
     print(f'Moving to the bank : {dest.x} {dest.y}')
     my_hero = await action.move(my_hero, dest.x, dest.y)
     
-    my_hero = await action.deposit(my_hero, resource_code, qtty)
+  my_hero = await action.deposit(my_hero, resource_code, qtty)
 
   return my_hero

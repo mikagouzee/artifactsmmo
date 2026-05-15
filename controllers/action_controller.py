@@ -13,7 +13,7 @@ class ActionController:
   async def _request_wrapper(self, method, endpoint, **kwargs):
     """Middleware central pour monitorer et compter chaque appel API"""
     self.total_api_calls += 1
-    print(f"📡 [API CALL #{self.total_api_calls}] {method.upper()} {endpoint} | Args: {kwargs.get('params', kwargs.get('json', ''))}")
+    # print(f"📡 [API CALL #{self.total_api_calls}] {method.upper()} {endpoint} | Args: {kwargs.get('params', kwargs.get('json', ''))}")
     
     if method.lower() == "get":
         return await self.http.get(endpoint, **kwargs)
@@ -30,6 +30,8 @@ class ActionController:
         message = error_data.get("message")
         print(f"[{aHero.name}] API Error {error_code}: {message}")
         
+        #error 497 = inventory full, send hero to deposit stuff
+
         # FUITE FIX: Si erreur, on force un sleep pour éviter le spam en boucle infinie
         await asyncio.sleep(1)
         return aHero
@@ -123,7 +125,7 @@ class ActionController:
                    e.g., [{"code": "copper_bar", "quantity": 5}, {"code": "raw_chicken", "quantity": 10}]
     """
     await self._limiter()
-    payload = [{'code': item['code'], 'quantity': item['quantity']} for item in items_list]
+    payload = [{'code': item['code'], 'quantity': item.get("quantity", 1)} for item in items_list]
     resp = await self._request_wrapper("post", f'/my/{aHero.name}/action/bank/withdraw/item', json=payload)
     return await self.process_result(resp.json(), aHero)
 
@@ -132,13 +134,34 @@ class ActionController:
     resp = await self._request_wrapper("get", '/my/characters')
     data = resp.json()
     return [hero(**char) for char in data["data"]]
-
  
-  async def get_bank_inventory(self, aHero):
+  async def accept_new_task(self, aHero):
+    #   adds the following on the character:
+    #   "task": "mushmush",
+    #   "task_type": "monsters",
+    #   "task_progress": 0,
+    #   "task_total": 305,
+    # or
+    #   "task": "gudgeon",
+    #   "task_type": "items",
+    #   "task_progress": 0,
+    #   "task_total": 306,
+    resp = await self._request_wrapper("post", f'/my/{aHero.name}/action/task/new')
+    return await self.process_result(resp.json(), aHero)
+  
+  async def complete_task(self, aHero):
+    resp = await self._request_wrapper("post", f'/my/{aHero.name}/action/task/complete')
+    return await self.process_result(resp.json(), aHero)
+
+  
+  async def task_trade(self, aHero, item_code, quantity):
+    payload = {'code': item_code, 'quantity': quantity}
+    resp = await self._request_wrapper("post", f'/my/{aHero.name}/action/task/trade', json=payload)
+    return await self.process_result(resp.json(), aHero)
+
+     
+  async def get_bank_inventory(self):
     await self._limiter()
     resp = await self._request_wrapper("get", f'/my/bank/items')
     data = resp.json()
     return data["data"]
-
- 
- 

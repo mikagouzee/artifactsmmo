@@ -41,6 +41,27 @@ class DbController:
             page += 1
         print("Synced WorldMap.")
 
+    async def sync_items(self):
+        collection = DatabaseManager.db["items"]
+        page = 1
+        
+        while True:
+            response = await self.http.get("/items", params={"page": page, "size": 100})
+            data = response.json()
+            items_data = data.get("data", [])
+
+            for item in items_data:
+                await collection.replace_one(
+                    {"name": item["name"], "code":item["code"]},
+                    item,
+                    upsert=True
+                )
+
+            if page >= data.get("pages", 1):
+                break
+            page += 1
+        print(f"Synced {len(items_data)} Items.")
+
     async def sync_monsters(self):
         collection = DatabaseManager.db["monsters"]
         page = 1

@@ -1,1 +1,1 @@
-from .monster_manager import get_best_monster
+from .monster_manager import monster_manager

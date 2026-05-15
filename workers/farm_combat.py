@@ -1,17 +1,18 @@
 import asyncio
 from controllers import ActionController, DbController
 
-from helpers.find_in_bag import check_bag_weight
-from managers import get_best_monster
+from helpers import check_bag_weight
+from managers import monster_manager
 from models import hero
-from routines import go_craft, go_deposit_item, go_fight, go_deposit_gold
+from routines import go_deposit_item, go_fight, go_deposit_gold
 
 
 class farm_combat:
-  def __init__(self, character: hero, action:ActionController, db:DbController):
+  def __init__(self, character: hero, action:ActionController, db:DbController, monster_code:str=None):
     self.my_hero = character
     self.action = action
     self.db = db
+    self.monster_code = monster_code
 
   async def run(self):
     # cooked_chicken_json=read_json("cooked_chicken.json")
@@ -23,7 +24,11 @@ class farm_combat:
         self.my_hero = await go_deposit_gold(self.my_hero, self.action, self.db)
         continue
       
-      target_monster = await get_best_monster(self.my_hero)
+      if self.monster_code == None:
+        target_monster = await monster_manager.get_best_monster(self.my_hero)
+      else:
+        target_monster = self.monster_code
+      
       self.my_hero = await go_fight(self.my_hero, target_monster, self.action, self.db)
       
       #give time to the API
