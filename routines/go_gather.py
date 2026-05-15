@@ -12,13 +12,11 @@ async def go_gather(my_hero,action:ActionController,db:DbController, resource_co
   dest = await db.get_closest_map(my_hero, content_type="resource", content_code=resource_code)
 
   if dest and not check_location(my_hero, dest.x, dest.y):
-    # print(f'{my_hero.name} moves to {dest.x} {dest.y}')
     my_hero = await action.move(my_hero, dest.x, dest.y)
 
   max_weight = my_hero.inventory_max_items
 
   while (check_bag_weight(my_hero.inventory) < max_weight ):
-    # print(f'{my_hero.name} is gathering.')
     my_hero = await action.gather(my_hero)
     
   return my_hero

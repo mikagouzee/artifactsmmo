@@ -8,3 +8,4 @@ from .go_withdraw_items import go_withdraw_items
 from .go_complete_task import go_complete_task
 from .go_get_new_task import go_get_new_task
 from .go_trade_task import go_trade_task
+from .go_produce import go_produce

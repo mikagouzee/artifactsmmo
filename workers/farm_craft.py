@@ -40,7 +40,7 @@ class farm_craft:
         can_carry = min(total_craft_possible, max_crafts_by_weight)
 
         if can_carry <= 0:
-          break
+          self.my_hero = await go_deposit_item(self.my_hero, self.action, self.db)
 
         needed_items = []
         for ingredient in ingredient_list:
@@ -56,9 +56,12 @@ class farm_craft:
             })
 
         self.my_hero = await go_withdraw_items(self.my_hero, self.action, self.db, needed_items)       
-        self.my_hero = await go_craft(self.my_hero, self.action, self.db,item_and_iteration[0], self.skill, can_carry)
+        self.my_hero = await go_craft(self.my_hero, self.action, self.db,item_and_iteration[0], can_carry)
         self.my_hero = await go_deposit_item(self.my_hero, self.action, self.db)
       
         await asyncio.sleep(1)
+
+  
+
       
       

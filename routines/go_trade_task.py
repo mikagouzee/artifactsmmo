@@ -12,6 +12,6 @@ async def go_trade_task(my_hero, action:ActionController, db:DbController):
     print(f'Moving to the task master : {dest.x} {dest.y}')
     my_hero = await action.move(my_hero, dest.x, dest.y)
 
-  my_hero = await action.task_trade(my_hero)
+  my_hero = await action.task_trade(my_hero, my_hero.task, find_in_bag(my_hero.inventory, my_hero.task))
 
   return my_hero

@@ -6,3 +6,4 @@ from .check_location import check_location
 from .check_recipe import check_recipe
 from .check_ingredient_list import check_ingredient_list
 from .check_bag_weight import check_bag_weight
+from .find_max_craftable_quantity import find_max_craftable_quantity

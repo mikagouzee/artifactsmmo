@@ -83,8 +83,6 @@ class DbController:
             page += 1
         print(f"Synced {len(monsters_data)} Monsters.")
 
-
-
     async def get_closest_map(self, hero, content_code: str, content_type:str):
         collection = DatabaseManager.db["map_tiles"]
         

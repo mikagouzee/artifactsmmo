@@ -125,7 +125,7 @@ class ActionController:
                    e.g., [{"code": "copper_bar", "quantity": 5}, {"code": "raw_chicken", "quantity": 10}]
     """
     await self._limiter()
-    payload = [{'code': item['code'], 'quantity': item['quantity']} for item in items_list]
+    payload = [{'code': item['code'], 'quantity': item.get("quantity", 1)} for item in items_list]
     resp = await self._request_wrapper("post", f'/my/{aHero.name}/action/bank/withdraw/item', json=payload)
     return await self.process_result(resp.json(), aHero)
 
@@ -134,14 +134,6 @@ class ActionController:
     resp = await self._request_wrapper("get", '/my/characters')
     data = resp.json()
     return [hero(**char) for char in data["data"]]
-
- 
-  async def get_bank_inventory(self, aHero):
-    await self._limiter()
-    resp = await self._request_wrapper("get", f'/my/bank/items')
-    data = resp.json()
-    return data["data"]
-
  
   async def accept_new_task(self, aHero):
     #   adds the following on the character:
@@ -155,15 +147,21 @@ class ActionController:
     #   "task_progress": 0,
     #   "task_total": 306,
     resp = await self._request_wrapper("post", f'/my/{aHero.name}/action/task/new')
-    data = resp.json()
-    return data["data"]
+    return await self.process_result(resp.json(), aHero)
   
   async def complete_task(self, aHero):
     resp = await self._request_wrapper("post", f'/my/{aHero.name}/action/task/complete')
-    data = resp.json()
-    return data["data"]
+    return await self.process_result(resp.json(), aHero)
+
   
-  async def task_trade(self, aHero):
-    resp = await self._request_wrapper("post", f'/my/{aHero.name}/action/task/trade')
+  async def task_trade(self, aHero, item_code, quantity):
+    payload = {'code': item_code, 'quantity': quantity}
+    resp = await self._request_wrapper("post", f'/my/{aHero.name}/action/task/trade', json=payload)
+    return await self.process_result(resp.json(), aHero)
+
+     
+  async def get_bank_inventory(self):
+    await self._limiter()
+    resp = await self._request_wrapper("get", f'/my/bank/items')
     data = resp.json()
     return data["data"]

@@ -3,22 +3,7 @@ from models import hero
 
 
 async def find_best_craft_item(my_hero: hero, skill_name: str, bank_inventory: list = None) -> tuple | None:
-    """
-    Find the best item to craft to progress a skill based on available bank inventory.
-    
-    Args:
-        my_hero: The hero object containing skill levels
-        skill_name: The skill to progress (e.g., "cooking", "weaponcrafting")
-        bank_inventory: List of items in the bank with {code, quantity} structure
-    
-    Returns:
-        A dict with {item_code: quantity} representing the best craftable item and how many can be crafted,
-        or None if no suitable items can be crafted
-    """
-    
-    if bank_inventory is None:
-        bank_inventory = []
-    
+ 
     # Get the hero's current skill level
     skill_level_attr = f"{skill_name}_level"
     if not hasattr(my_hero, skill_level_attr):
@@ -26,6 +11,7 @@ async def find_best_craft_item(my_hero: hero, skill_name: str, bank_inventory: l
     
     current_skill_level = getattr(my_hero, skill_level_attr)
     min_level_to_progress = current_skill_level - 10
+
     # Query items collection for craftable items
     collection = DatabaseManager.get_collection("items")
     
@@ -41,15 +27,7 @@ async def find_best_craft_item(my_hero: hero, skill_name: str, bank_inventory: l
         return None
     
     # Create a combined inventory lookup from both bank and hero inventory
-    combined_inventory = {item["code"]: item["quantity"] for item in bank_inventory}
-    
-    # Add hero inventory items
-    if my_hero.inventory:
-        for inv_item in my_hero.inventory:
-            code = inv_item["code"]
-            qty = inv_item["quantity"]
-            # Combine quantities if item exists in both
-            combined_inventory[code] = combined_inventory.get(code, 0) + qty
+    combined_inventory = get_available_resources(bank_inventory, my_hero.inventory)
     
     best_item = None
     best_craftable_qty = 0
@@ -60,7 +38,7 @@ async def find_best_craft_item(my_hero: hero, skill_name: str, bank_inventory: l
         # Get recipe details
         recipe = item.get("craft", {})
         required_items = recipe.get("items", [])
-        craft_quantity = recipe.get("quantity", 1)
+        required_quantity = recipe.get("quantity", 1)
         item_level = item.get("level", 0)
         
         # Calculate how many times we can craft this item
@@ -83,7 +61,7 @@ async def find_best_craft_item(my_hero: hero, skill_name: str, bank_inventory: l
             continue
         
         # Total quantity of items we'd get
-        final_qty = craftable_qty * craft_quantity
+        final_qty = craftable_qty * required_quantity
         
         # Determine if this is better than our current best
         # Priority: higher level > fewer ingredients > more craftable quantity
@@ -107,3 +85,31 @@ async def find_best_craft_item(my_hero: hero, skill_name: str, bank_inventory: l
         return None
     
     return (best_item, best_craftable_qty)
+
+
+
+
+def get_available_resources(bank_inventory, hero_inventory):
+    if bank_inventory is None:
+        bank_inventory = []
+
+    combined_inventory = {item["code"]: item["quantity"] for item in bank_inventory}
+    
+    # Add hero inventory items
+    if hero_inventory:
+        for inv_item in hero_inventory:
+            code = inv_item["code"]
+            qty = inv_item["quantity"]
+            # Combine quantities if item exists in both
+            combined_inventory[code] = combined_inventory.get(code, 0) + qty
+
+    return combined_inventory
+
+async def find_item_by_code(item_code):
+    collection = DatabaseManager.get_collection("items")
+    query = {
+        "code":item_code
+    }
+    queried = await collection.find(query).to_list(length=1)
+    return queried[0]
+
