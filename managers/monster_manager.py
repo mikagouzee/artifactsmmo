@@ -28,7 +28,7 @@ class monster_manager:
                 xp_expected = xp_to_gain
 
         result_code = best_monster.get("code") if best_monster else "chicken"
-        print(f"{my_hero.name} is going to fight {result_code} : Xp expected {xp_expected}")
+        # print(f"{my_hero.name} is going to fight {result_code} : Xp expected {xp_expected}")
         return result_code
 
     def calculate_xp(self, monster, player_level):

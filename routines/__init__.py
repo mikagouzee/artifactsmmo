@@ -5,3 +5,6 @@ from .go_craft import go_craft
 from .go_gather import go_gather
 from .go_deposit_gold import go_deposit_gold
 from .go_withdraw_items import go_withdraw_items
+from .go_complete_task import go_complete_task
+from .go_get_new_task import go_get_new_task
+from .go_trade_task import go_trade_task

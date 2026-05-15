@@ -30,6 +30,8 @@ class ActionController:
         message = error_data.get("message")
         print(f"[{aHero.name}] API Error {error_code}: {message}")
         
+        #error 497 = inventory full, send hero to deposit stuff
+
         # FUITE FIX: Si erreur, on force un sleep pour éviter le spam en boucle infinie
         await asyncio.sleep(1)
         return aHero
@@ -141,4 +143,27 @@ class ActionController:
     return data["data"]
 
  
- 
+  async def accept_new_task(self, aHero):
+    #   adds the following on the character:
+    #   "task": "mushmush",
+    #   "task_type": "monsters",
+    #   "task_progress": 0,
+    #   "task_total": 305,
+    # or
+    #   "task": "gudgeon",
+    #   "task_type": "items",
+    #   "task_progress": 0,
+    #   "task_total": 306,
+    resp = await self._request_wrapper("post", f'/my/{aHero.name}/action/task/new')
+    data = resp.json()
+    return data["data"]
+  
+  async def complete_task(self, aHero):
+    resp = await self._request_wrapper("post", f'/my/{aHero.name}/action/task/complete')
+    data = resp.json()
+    return data["data"]
+  
+  async def task_trade(self, aHero):
+    resp = await self._request_wrapper("post", f'/my/{aHero.name}/action/task/trade')
+    data = resp.json()
+    return data["data"]
