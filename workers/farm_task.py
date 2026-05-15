@@ -42,9 +42,12 @@ class farm_task:
                 #will work as long as there's a single item needed for the craft
                 #! the craft gives the name of the RESOURCE gathered;
                 resource_to_gather = await get_resource_name_by_drop(item["craft"]["items"][0]["code"])
-                self.my_hero = await go_gather(self.my_hero, self.action, self.db, resource_to_gather["code"])
+                quantity = sum(item["craft"]["items"]["quantity"])
+                while find_in_bag(self.my_hero.inventory) <= quantity * item["craft"]["quantity"]:
+                  self.my_hero = await go_gather(self.my_hero, self.action, self.db, resource_to_gather["code"])
 
-    self.my_hero = await go_complete_task(self.my_hero, self.action, self.db)  
+    self.my_hero = await go_complete_task(self.my_hero, self.action, self.db)
+    #accept new task ? 
 
     await asyncio.sleep(1)
   
