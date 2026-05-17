@@ -2,7 +2,7 @@ import asyncio
 from controllers import ActionController, DbController
 from helpers import check_bag_weight
 from helpers.find_in_bag import find_in_bag
-from managers.item_manager import find_best_craft_item
+from controllers.managers.item_manager import find_best_craft_item
 from models import hero
 from routines import go_craft, go_deposit_items, go_withdraw_items
 

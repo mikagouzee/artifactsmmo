@@ -1,5 +1,8 @@
 import asyncio
 from dataclasses import replace
+from controllers.repositories.bank import bank_repository
+from controllers.repositories.hero import hero_repository
+from controllers.repositories.task import task_repository
 from models import hero
 
 class ActionController:
@@ -8,6 +11,9 @@ class ActionController:
     self.http.base_url = "https://api.artifactsmmo.com"
     self._maps_cache = []
     self.total_api_calls = 0 
+    self.bank = bank_repository(http_client)
+    self.task = task_repository(http_client)
+    self.hero = hero_repository(http_client)
   
   async def get_all_heroes(self): 
     
@@ -54,115 +60,4 @@ class ActionController:
       context = replace(context.current_hero, **res_char)
     return context
 
-  async def craft(self, context, item_code, quantity=1):
-    await self._limiter()
-    payload = {'code': item_code, 'quantity': quantity}
-    resp = await self._request_wrapper("post", f'/my/{context.current_hero.name}/action/crafting', json=payload)
-    return await self.process_result(resp.json(), context)
-
-  async def deposit(self, context, item_code=None, quantity=None):
-    await self._limiter()
-    endpoint = f'/my/{context.current_hero.name}/action/bank/deposit/item'
-    if item_code is None:
-        payload = [{"code": i["code"], "quantity": i["quantity"]} for i in context.inventory if i.get("quantity", 0) > 0]
-        if not payload: return context
-    else:
-        payload = [{'code': item_code, 'quantity': quantity or 1}]
-    
-    resp = await self._request_wrapper("post", endpoint, json=payload)
-    return await self.process_result(resp.json(), context)
-
-  async def deposit_gold(self, context):
-    await self._limiter()
-    endpoint = f'/my/{context.current_hero.name}/action/bank/deposit/gold'
   
-    payload = {"quantity": context.gold}
-        
-    resp = await self._request_wrapper("post", endpoint, json=payload)
-    return await self.process_result(resp.json(), context)
-
-  async def equip(self, context, item_code, slot="weapon", qtty=1):
-    await self._limiter()
-    payload = {'code': item_code, 'slot': slot, 'quantity': qtty}
-    resp = await self._request_wrapper("post", f'/my/{context.current_hero.name}/action/equip', json=payload)
-    return await self.process_result(resp.json(), context)
-
-  async def fight(self, context):
-    await self._limiter()
-    resp = await self._request_wrapper("post", f'/my/{context.current_hero.name}/action/fight')
-    return await self.process_result(resp.json(), context)
-
-  async def gather(self, context):
-    await self._limiter()
-    resp = await self._request_wrapper("post", f'/my/{context.current_hero.name}/action/gathering')
-    return await self.process_result(resp.json(), context)
-
-  async def move(self, context, x, y):
-    await self._limiter()
-    payload = {'x': x, 'y': y}
-    resp = await self._request_wrapper("post", f'/my/{context.current_hero.name}/action/move', json=payload)
-    return await self.process_result(resp.json(), context)
-
-  async def rest(self, context):
-    await self._limiter()
-    resp = await self._request_wrapper("post", f'/my/{context.current_hero.name}/action/rest')
-    return await self.process_result(resp.json(), context)
-
-  async def use_item(self, context, item_code, qtty=1):
-    await self._limiter()
-    payload = {"code": item_code, "quantity": qtty}
-    resp = await self._request_wrapper("post", f'/my/{context.current_hero.name}/action/use', json=payload)
-    return await self.process_result(resp.json(), context)
-  
-  async def withdraw(self, context, item_code, quantity=1):
-    await self._limiter()
-    payload = [{'code': item_code, 'quantity': quantity}]
-    resp = await self._request_wrapper("post", f'/my/{context.current_hero.name}/action/bank/withdraw/item', json=payload)
-    return await self.process_result(resp.json(), context)
-
-  async def withdraw_items(self, context, items_list: list):
-    """
-    Withdraw multiple items from the bank.
-    
-    Args:
-        context: The hero withdrawing items
-        items_list: List of dicts with 'code' and 'quantity' keys
-                   e.g., [{"code": "copper_bar", "quantity": 5}, {"code": "raw_chicken", "quantity": 10}]
-    """
-    await self._limiter()
-    payload = [{'code': item['code'], 'quantity': item.get("quantity", 1)} for item in items_list]
-    resp = await self._request_wrapper("post", f'/my/{context.current_hero.name}/action/bank/withdraw/item', json=payload)
-    return await self.process_result(resp.json(), context)
-
-  
- 
-  async def accept_new_task(self, context):
-    #   adds the following on the character:
-    #   "task": "mushmush",
-    #   "task_type": "monsters",
-    #   "task_progress": 0,
-    #   "task_total": 305,
-    # or
-    #   "task": "gudgeon",
-    #   "task_type": "items",
-    #   "task_progress": 0,
-    #   "task_total": 306,
-    resp = await self._request_wrapper("post", f'/my/{context.current_hero.name}/action/task/new')
-    return await self.process_result(resp.json(), context)
-  
-  async def complete_task(self, context):
-    resp = await self._request_wrapper("post", f'/my/{context.current_hero.name}/action/task/complete')
-    return await self.process_result(resp.json(), context)
-
-  
-  async def task_trade(self, context, item_code, quantity):
-    payload = {'code': item_code, 'quantity': quantity}
-    resp = await self._request_wrapper("post", f'/my/{context.current_hero.name}/action/task/trade', json=payload)
-    return await self.process_result(resp.json(), context)
-
-     
-  async def get_bank_inventory(self):
-    await self._limiter()
-    resp = await self._request_wrapper("get", f'/my/bank/items')
-    data = resp.json()
-    return data["data"]

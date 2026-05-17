@@ -12,10 +12,14 @@ class town_hall:
         # Logic to assign a task to a hero
         hero = context.current_hero
 
-        if self.resource_requests and can_fulfill(hero, self.resource_requests[0], db):
-            request = self.resource_requests.pop(0)
-            return await self.create_quest("fulfill_request", {"request": request})
-        pass
+        for index, request in enumerate(self.resource_requests):
+            if await can_fulfill(hero, request, db):
+                chosen_request = self.resource_requests.pop(index)
+                print(f"[TownHall] Assigning {chosen_request['item_code']} x{chosen_request['quantity']} to {hero.name} (requested by {chosen_request['requester']})")
+                from quests.gather_quest import gather_quest
+                return gather_quest(chosen_request["item_code"], chosen_request["quantity"])
+        
+        return None  # No suitable quest found
 
     def report_need(self, item_code:str, quantity:int, priority:int, requester:str):
         """Les héros peuvent signaler un besoin de ressources via cette fonction."""

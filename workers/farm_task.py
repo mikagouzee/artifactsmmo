@@ -1,8 +1,8 @@
 import asyncio
 from controllers import ActionController, DbController
 from helpers import find_in_bag, find_max_craftable_quantity
-from managers.item_manager import find_item_by_code
-from managers.resource_manager import get_resource_name_by_drop
+from controllers.managers.item_manager import find_item_by_code
+from controllers.managers.resource_manager import get_resource_name_by_drop
 from models import hero
 from routines import go_complete_task, go_deposit_gold, go_fight, go_gather, go_deposit_items, go_get_new_task, go_produce, go_trade_task, go_withdraw_items
 

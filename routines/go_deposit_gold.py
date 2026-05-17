@@ -10,8 +10,8 @@ async def go_deposit_gold(context:hero_context,action:ActionController,db:DbCont
   dest = await db.get_closest_map(context, content_type="bank", content_code="bank")
   if dest and not check_location(context.current_hero, dest.x, dest.y):
     print(f'Moving to the bank : {dest.x} {dest.y}')
-    context = await action.move(context, dest.x, dest.y)
+    context = await action.hero.move(context, dest.x, dest.y)
     
-  context = await action.deposit_gold(context)
+  context = await action.bank.deposit_gold(context)
 
   return context

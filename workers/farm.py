@@ -1,6 +1,6 @@
 import asyncio
 from controllers import ActionController, DbController
-from managers.resource_manager import get_best_resource
+from controllers.managers.resource_manager import get_best_resource
 from models import hero
 from routines import go_deposit_gold, go_gather, go_deposit_items
 

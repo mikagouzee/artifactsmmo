@@ -1,10 +1,11 @@
 import math
-from managers.db_manager import DatabaseManager
+from controllers.managers.db_manager import DatabaseManager
 from models import hero
 
 
 class monster_manager:
-    @classmethod
+    def __init__(self):
+        self.collection = DatabaseManager.get_collection("monsters")
     async def get_best_monster(self, my_hero:hero):
         candidates = await self.get_candidates(self, my_hero)
         
@@ -14,7 +15,7 @@ class monster_manager:
         min_turns = float('-inf')
 
         for monster in candidates:
-            ttk = await self.time_to_kill(self, my_hero, monster)
+            ttk = self.time_to_kill(self, my_hero, monster)
 
             if ttk < min_turns:
                 min_turns = ttk
@@ -56,8 +57,6 @@ class monster_manager:
             return 1.0 - ((monster_level - player_level) / 10)
 
     async def get_candidates(self, my_hero:hero):
-        collection = DatabaseManager.get_collection("monsters")
-
         # Requête MongoDB standard (asynchrone)
         crt_level = my_hero.level
         gt = max(0, crt_level-10)
@@ -65,12 +64,12 @@ class monster_manager:
             "level": {"$lte": crt_level, "$gt": gt}
         }
 
-        candidates = await collection.find(query).to_list(length=100)
+        candidates = await self.collection.find(query).to_list(length=100)
         if not candidates:
             return "chicken"
         return candidates
         
-    async def time_to_kill(self, my_hero, monster):
+    def time_to_kill(self, my_hero, monster):
         elements = ["fire", "earth", "water", "air"]
     
         total_dpt_H = my_hero.dmg

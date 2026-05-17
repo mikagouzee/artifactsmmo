@@ -1,6 +1,6 @@
 from helpers.check_bag_weight import check_bag_weight
 from routines import go_fight, go_get_new_task, go_deposit_items, go_deposit_gold, go_complete_task
-from townhall.quest import quest
+from quests.quest import quest
 
 
 class default_farm_quest(quest):

@@ -3,7 +3,7 @@ import os
 import httpx
 
 from controllers import ActionController, DbController
-from managers import DatabaseManager
+from controllers.managers import DatabaseManager
 from runners import GameRunner
 
 

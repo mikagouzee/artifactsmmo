@@ -4,7 +4,7 @@ import os
 import httpx
 from controllers import ActionController, DbController
 
-from managers.db_manager import DatabaseManager
+from controllers.managers.db_manager import DatabaseManager
 from workers import farm, farm_combat, farm_craft, farm_task
 
 async def main():
