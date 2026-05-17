@@ -9,16 +9,16 @@ async def go_produce(my_hero, action:ActionController,db:DbController, desired:i
    
   items_in_bank = await action.get_bank_inventory()
 
-  bank_bag = {item["code"]:item["quantity"] for item in items_in_bank}
+  # bank_bag = {item["code"]:item["quantity"] for item in items_in_bank}
 
-  if my_hero.inventory:
-    for inv_item in my_hero.inventory:
-      code = inv_item["code"]
-      qty = inv_item["quantity"]
-      # Combine quantities if item exists in both
-      bank_bag[code] = bank_bag.get(code, 0) + qty
+  # if my_hero.inventory:
+  #   for inv_item in my_hero.inventory:
+  #     code = inv_item["code"]
+  #     qty = inv_item["quantity"]
+  #     # Combine quantities if item exists in both
+  #     items_in_bank[code] = items_in_bank.get(code, 0) + qty
 
-  total_craft_possible = find_max_craftable_quantity(bank_bag, desired)
+  total_craft_possible = find_max_craftable_quantity(items_in_bank, desired)
   
   available_space = my_hero.inventory_max_items - sum((x["quantity"] for x in my_hero.inventory))
   ingredient_list = desired["craft"]["items"]

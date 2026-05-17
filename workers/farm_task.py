@@ -24,9 +24,9 @@ class farm_task:
             self.my_hero = await go_fight(self.my_hero, self.my_hero.task, self.action, self.db)
 
         case "items":
-            item = await find_item_by_code(self.my_hero.task)
+            desired = await find_item_by_code(self.my_hero.task)
 
-            if item["craft"] is None:
+            if desired["craft"] is None:
               self.my_hero = await self.try_get_from_bank(self.my_hero.task)
               self.my_hero = await go_gather(self.my_hero, self.action, self.db, self.my_hero.task)
               self.my_hero = await go_trade_task(self.my_hero, self.action, self.db)
@@ -34,17 +34,18 @@ class farm_task:
             else:
               bank_items = await self.action.get_bank_inventory()
 
-              while find_max_craftable_quantity(bank_items, item) > 0:
-                self.my_hero = await go_produce(self.my_hero, self.action, self.db, item)
+              while find_max_craftable_quantity(bank_items, desired) > 0:
+                self.my_hero = await go_produce(self.my_hero, self.action, self.db, desired)
                 self.my_hero = await go_trade_task(self.my_hero, self.action, self.db)
                 bank_items = await self.action.get_bank_inventory()
               else:
                 #will work as long as there's a single item needed for the craft
                 #! the craft gives the name of the RESOURCE gathered;
-                resource_to_gather = await get_resource_name_by_drop(item["craft"]["items"][0]["code"])
-                quantity = sum(item["craft"]["items"]["quantity"])
-                while find_in_bag(self.my_hero.inventory) <= quantity * item["craft"]["quantity"]:
+                resource_to_gather = await get_resource_name_by_drop(desired["craft"]["items"][0]["code"])
+                quantity = sum([item["quantity"] for item in desired["craft"]["items"]])
+                while find_in_bag(self.my_hero.inventory, resource_to_gather) <= quantity * desired["craft"]["quantity"]:
                   self.my_hero = await go_gather(self.my_hero, self.action, self.db, resource_to_gather["code"])
+                  self.my_hero = await go_produce(self.my_hero, self.action, self.db, desired)
 
     self.my_hero = await go_complete_task(self.my_hero, self.action, self.db)
     #accept new task ? 

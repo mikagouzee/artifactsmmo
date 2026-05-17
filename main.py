@@ -36,11 +36,11 @@ async def main():
 
         # 3. On dispatch
         tasks = [
-            farm_task(semet, action_controller, db_controller).run(),
-            farm_task(kaarl, action_controller, db_controller).run(),
-            farm_task(ethina, action_controller, db_controller).run(),
-            farm_task(bobby, action_controller, db_controller).run(),
-            farm_task(alchie, action_controller, db_controller).run()
+            farm_combat(semet, action_controller, db_controller).run(),
+            farm_combat(kaarl, action_controller, db_controller).run(),
+            farm_combat(ethina, action_controller, db_controller, "cow").run(),
+            farm_combat(bobby, action_controller, db_controller).run(),
+            farm_combat(alchie, action_controller, db_controller).run()
         ]
 
         # 4. On lance tout en parallèle
