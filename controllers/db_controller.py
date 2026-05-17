@@ -83,9 +83,26 @@ class DbController:
             page += 1
         print(f"Synced {len(monsters_data)} Monsters.")
 
-    async def get_closest_map(self, hero, content_code: str, content_type:str):
+    async def sync_data(self):
+        map_count = await DatabaseManager.db["map_tiles"].count_documents({})
+        if map_count == 0:
+            await self.sync_world_map()
+
+        res_count = await DatabaseManager.db["resources"].count_documents({})
+        if res_count == 0:
+            await self.sync_resources()
+
+        monster_count = await DatabaseManager.db["monsters"].count_documents({})
+        if monster_count == 0:
+            await self.sync_monsters()
+
+        items_count = await DatabaseManager.db["items"].count_documents({})
+        if items_count == 0:
+            await self.sync_items()
+
+    async def get_closest_map(self, context, content_code: str, content_type:str):
         collection = DatabaseManager.db["map_tiles"]
-        
+        hero = context.current_hero
         cursor = collection.find({"interactions.content.code": content_code, "interactions.content.type":content_type})
         targets = await cursor.to_list(length=100)
         

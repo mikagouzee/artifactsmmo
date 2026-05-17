@@ -1,34 +1,33 @@
-from dataclasses import replace
 from controllers import ActionController, DbController
-from helpers import find_in_bag, check_location, check_bag_weight
-from models import hero
+from helpers import find_in_bag, check_location
+from managers import monster_manager
+from models import hero_context
 
 
-async def go_fight(my_hero, monster_code, action:ActionController, db:DbController):
-  # print(f'{my_hero.name} will try to fight {monster_code}.')
-  dest = await db.get_closest_map(my_hero, content_type="monster", content_code=monster_code)
-  
-  if dest and not check_location(my_hero, dest.x, dest.y):
-    # print(f'{my_hero.name} moving to {dest.x}{dest.y} to fight!')
-    my_hero = await action.move(my_hero, dest.x, dest.y)
-
-  if my_hero.hp < my_hero.max_hp:
-    if find_in_bag(my_hero.inventory, 'cooked_chicken') > 0:
-      # print(f'{my_hero.name} eating to restore life.')
-      my_hero = await action.use_item(my_hero, 'cooked_chicken')
-    elif my_hero.hp <= my_hero.max_hp /2:
-      # print(f'{my_hero.name} resting to restore life : it\'s Nap Time.')
-      my_hero = await action.rest(my_hero)
-    else:        
-      if dest and not check_location(my_hero, dest.x, dest.y):
-        # print(f'{my_hero.name} moving to {dest.x}{dest.y} to fight!')
-        my_hero = await action.move(my_hero, dest.x, dest.y)
-        
-      my_hero = await action.fight(my_hero)
+async def go_fight(context:hero_context, action:ActionController, db:DbController, monster_code=None):
+  if monster_code is None:
+    target_monster = await monster_manager.get_best_monster(context.current_hero)
   else:
-    if dest and not check_location(my_hero, dest.x, dest.y):
-      # print(f'{my_hero.name} moving to {dest.x}{dest.y} to fight!')
-      my_hero = await action.move(my_hero, dest.x, dest.y)
-    my_hero = await action.fight(my_hero)
+    target_monster = monster_code
+  
+  dest = await db.get_closest_map(context, content_type="monster", content_code=target_monster)
+  
+  if dest and not check_location(context.current_hero, dest.x, dest.y):
+    context = await action.move(context, dest.x, dest.y)
 
-  return my_hero
+  if context.current_hero.hp < context.current_hero.max_hp:
+    if find_in_bag(context.current_hero.inventory, 'cooked_chicken') > 0:
+      context = await action.use_item(context, 'cooked_chicken')
+    elif context.current_hero.hp <= context.current_hero.max_hp /2:
+      context = await action.rest(context)
+    else:        
+      if dest and not check_location(context.current_hero, dest.x, dest.y):
+        context = await action.move(context, dest.x, dest.y)
+        
+      context = await action.fight(context)
+  else:
+    if dest and not check_location(context.current_hero, dest.x, dest.y):
+      context = await action.move(context, dest.x, dest.y)
+    context = await action.fight(context)
+
+  return context

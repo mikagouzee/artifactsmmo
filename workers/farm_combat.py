@@ -4,7 +4,7 @@ from controllers import ActionController, DbController
 from helpers import check_bag_weight
 from managers import monster_manager
 from models import hero
-from routines import go_deposit_item, go_fight, go_deposit_gold
+from routines import go_deposit_items, go_fight, go_deposit_gold
 
 
 class farm_combat:
@@ -20,14 +20,11 @@ class farm_combat:
     max_weight = self.my_hero.inventory_max_items
     while True:
       if check_bag_weight(self.my_hero.inventory) == max_weight:
-        self.my_hero = await go_deposit_item(self.my_hero, self.action, self.db)
+        self.my_hero = await go_deposit_items(self.my_hero, self.action, self.db)
         self.my_hero = await go_deposit_gold(self.my_hero, self.action, self.db)
         continue
       
-      if self.monster_code == None:
-        target_monster = await monster_manager.get_best_monster(self.my_hero)
-      else:
-        target_monster = self.monster_code
+      
       
       self.my_hero = await go_fight(self.my_hero, target_monster, self.action, self.db)
       

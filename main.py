@@ -1,73 +1,33 @@
 import asyncio
 import os
-
 import httpx
-from controllers import ActionController, DbController
 
-from managers.db_manager import DatabaseManager
-from workers import farm, farm_combat, farm_craft, farm_task
+from controllers import ActionController, DbController
+from managers import DatabaseManager
+from runners import GameRunner
+
 
 async def main():
-    BASE_URL = "https://api.artifactsmmo.com"
+    BASE_URL = os.getenv('BASE_URL')
     DEFAULT_TIME_OUT = 10.0
     HEADERS = {
         "Authorization": f"Bearer {os.getenv('Token')}",
         "Content-Type": "application/json",
         "Accept": "application/json"
-    }   
+    }
 
     async with httpx.AsyncClient(
-        headers=HEADERS,
-        base_url = BASE_URL,
-        timeout=DEFAULT_TIME_OUT) as http_client:
-        action_controller = ActionController(http_client)
-        db_controller = DbController(http_client)
-        
-        ##INIT DATABASE
+    headers=HEADERS,
+    base_url = BASE_URL,
+    timeout=DEFAULT_TIME_OUT) as http_client:
+        action = ActionController(http_client)
+        db = DbController(http_client)
         await DatabaseManager.init_db()
-        await sync_data(db_controller)
+        await db.sync_data()
 
-        heroes = await action_controller.get_all_heroes()
-        semet = heroes[0]
-        ethina = heroes[1]
-        kaarl = heroes[2]
-        alchie = heroes[3]
-        bobby = heroes[4]
-
-        # 3. On dispatch
-        tasks = [
-            farm_combat(semet, action_controller, db_controller).run(),
-            farm_combat(kaarl, action_controller, db_controller).run(),
-            farm_combat(ethina, action_controller, db_controller, "cow").run(),
-            farm_combat(bobby, action_controller, db_controller).run(),
-            farm_combat(alchie, action_controller, db_controller).run()
-        ]
-
-        # 4. On lance tout en parallèle
-        await asyncio.gather(*tasks)
-
-
-async def sync_data(db_controller:DbController):
-    map_count = await DatabaseManager.db["map_tiles"].count_documents({})
-    if map_count == 0:
-        await db_controller.sync_world_map()
-
-    res_count = await DatabaseManager.db["resources"].count_documents({})
-    if res_count == 0:
-        await db_controller.sync_resources()
-
-    monster_count = await DatabaseManager.db["monsters"].count_documents({})
-    if monster_count == 0:
-        await db_controller.sync_monsters()
-
-    items_count = await DatabaseManager.db["items"].count_documents({})
-    if items_count == 0:
-        await db_controller.sync_items()
-
+        runner = GameRunner(action, db)
+        await runner.initialize()
+        await runner.run()
 
 if __name__ == "__main__":
-    try:
-        asyncio.run(main())
-    except KeyboardInterrupt:
-        print("\nArrêt du bot...")
-        
+    asyncio.run(main())

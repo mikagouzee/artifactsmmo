@@ -1,6 +1,5 @@
 from dataclasses import dataclass, replace
 from typing import List
-from api_client import artifacts_client
 from models.inventory_item import inventory_item
 
 
@@ -99,4 +98,4 @@ class hero:
   
     #endregion
 
-    # client: artifacts_client
+    

@@ -2,7 +2,7 @@ import asyncio
 from controllers import ActionController, DbController
 from managers.resource_manager import get_best_resource
 from models import hero
-from routines import go_deposit_gold, go_gather, go_deposit_item
+from routines import go_deposit_gold, go_gather, go_deposit_items
 
 
 class farm:
@@ -26,7 +26,7 @@ class farm:
           target_code = self.resource_code
           
         self.my_hero = await go_gather(self.my_hero, self.action, self.db, target_code)
-        self.my_hero = await go_deposit_item(self.my_hero, self.action, self.db)
+        self.my_hero = await go_deposit_items(self.my_hero, self.action, self.db)
         self.my_hero = await go_deposit_gold(self.my_hero, self.action, self.db)
 
       

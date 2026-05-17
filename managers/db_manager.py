@@ -33,8 +33,7 @@ class DatabaseManager:
         except Exception as e:
             print(f'Error in connection : {e}')
 
-        
-
+    
     @classmethod
     def get_collection(cls, name: str):
         return cls.db[name]
