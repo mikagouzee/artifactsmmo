@@ -16,8 +16,8 @@ class town_hall:
             if await can_fulfill(hero, request, db):
                 chosen_request = self.resource_requests.pop(index)
                 print(f"[TownHall] Assigning {chosen_request['item_code']} x{chosen_request['quantity']} to {hero.name} (requested by {chosen_request['requester']})")
-                from quests.gather_quest import gather_quest
-                return gather_quest(chosen_request["item_code"], chosen_request["quantity"])
+                from quests.gather import gather
+                return gather(chosen_request["item_code"], chosen_request["quantity"])
         
         return None  # No suitable quest found
 
