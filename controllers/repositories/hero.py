@@ -1,7 +1,10 @@
+from decorators.api_result import api_result
+
+
 class hero_repository:
   def __init__(self, http_client):
     self.http = http_client
-
+    self.total_api_calls = 0
 
   async def _request_wrapper(self, method, endpoint, **kwargs):
     """Middleware central pour monitorer et compter chaque appel API"""
@@ -13,43 +16,36 @@ class hero_repository:
     elif method.lower() == "post":
         return await self.http.post(endpoint, **kwargs)
 
+  @api_result
   async def craft(self, context, item_code, quantity=1):
-    await self._limiter()
     payload = {'code': item_code, 'quantity': quantity}
-    resp = await self._request_wrapper("post", f'/my/{context.current_hero.name}/action/crafting', json=payload)
-    return await self.process_result(resp.json(), context)
-
+    return await self._request_wrapper("post", f'/my/{context.current_hero.name}/action/crafting', json=payload)
+    
+  @api_result
   async def equip(self, context, item_code, slot="weapon", qtty=1):
-    await self._limiter()
     payload = {'code': item_code, 'slot': slot, 'quantity': qtty}
-    resp = await self._request_wrapper("post", f'/my/{context.current_hero.name}/action/equip', json=payload)
-    return await self.process_result(resp.json(), context)
+    return await self._request_wrapper("post", f'/my/{context.current_hero.name}/action/equip', json=payload)
+    
+  @api_result
+  async def fight(self, context):  
+    return await self._request_wrapper("post", f'/my/{context.current_hero.name}/action/fight')
 
-  async def fight(self, context):
-    await self._limiter()
-    resp = await self._request_wrapper("post", f'/my/{context.current_hero.name}/action/fight')
-    return await self.process_result(resp.json(), context)
-
+  @api_result
   async def gather(self, context):
-    await self._limiter()
-    resp = await self._request_wrapper("post", f'/my/{context.current_hero.name}/action/gathering')
-    return await self.process_result(resp.json(), context)
-
+    return await self._request_wrapper("post", f'/my/{context.current_hero.name}/action/gathering')
+    
+  @api_result
   async def move(self, context, x, y):
-    await self._limiter()
     payload = {'x': x, 'y': y}
-    resp = await self._request_wrapper("post", f'/my/{context.current_hero.name}/action/move', json=payload)
-    return await self.process_result(resp.json(), context)
-
+    return await self._request_wrapper("post", f'/my/{context.current_hero.name}/action/move', json=payload)
+    
+  @api_result
   async def rest(self, context):
-    await self._limiter()
-    resp = await self._request_wrapper("post", f'/my/{context.current_hero.name}/action/rest')
-    return await self.process_result(resp.json(), context)
+    return await self._request_wrapper("post", f'/my/{context.current_hero.name}/action/rest')
 
+  @api_result
   async def use_item(self, context, item_code, qtty=1):
-    await self._limiter()
     payload = {"code": item_code, "quantity": qtty}
-    resp = await self._request_wrapper("post", f'/my/{context.current_hero.name}/action/use', json=payload)
-    return await self.process_result(resp.json(), context)
+    return await self._request_wrapper("post", f'/my/{context.current_hero.name}/action/use', json=payload)
    
      

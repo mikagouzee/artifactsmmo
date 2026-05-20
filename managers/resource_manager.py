@@ -1,9 +1,12 @@
-from controllers.managers.db_manager import DatabaseManager
+from .db_manager import DatabaseManager
 
-class ResourceManager:
+class resource_manager:
     def __init__(self):
+        self.collection = []
+
+    def initialize(self):
         self.collection = DatabaseManager.get_collection("resources")
-        
+
     async def get_best_resource(self, current_level:int, skill:str):
         # Requête MongoDB standard (asynchrone)
         gt = current_level-10

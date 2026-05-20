@@ -1,6 +1,12 @@
+from decorators.api_result import api_result
+from helpers import find_in_bag
+
+
 class bank_repository:
     def __init__(self, http_client):
         self.http = http_client
+        self.total_api_calls = 0
+
 
     async def _request_wrapper(self, method, endpoint, **kwargs):
         """Middleware central pour monitorer et compter chaque appel API"""
@@ -12,34 +18,42 @@ class bank_repository:
         elif method.lower() == "post":
             return await self.http.post(endpoint, **kwargs)
 
-
+    @api_result
     async def deposit(self, context, item_code=None, quantity=None):
-        await self._limiter()
+        
         endpoint = f'/my/{context.current_hero.name}/action/bank/deposit/item'
         if item_code is None:
-            payload = [{"code": i["code"], "quantity": i["quantity"]} for i in context.inventory if i.get("quantity", 0) > 0]
+            payload = [{"code": i["code"], "quantity": i["quantity"]} for i in context.current_hero.inventory if i.get("quantity", 0) > 0]
             if not payload: return context
-        else:
-            payload = [{'code': item_code, 'quantity': quantity or 1}]
+            else:
+                return await self._request_wrapper("post", endpoint, json=payload)
+        elif quantity and quantity > 0:
+                payload = [{'code': item_code, 'quantity': quantity or 1}]
+                return await self._request_wrapper("post", endpoint, json=payload)
+        else: 
+            quantity = find_in_bag(context.current_hero.inventory, item_code)
+            payload = [{'code': item_code, 'quantity': quantity}]
+            return await self._request_wrapper("post", endpoint, json=payload)
+            
         
-        resp = await self._request_wrapper("post", endpoint, json=payload)
-        return await self.process_result(resp.json(), context)
-
+    @api_result
     async def deposit_gold(self, context):
-        await self._limiter()
+        if context.current_hero.gold < 1:
+            return context
+        
         endpoint = f'/my/{context.current_hero.name}/action/bank/deposit/gold'
     
-        payload = {"quantity": context.gold}
+        payload = {"quantity": context.current_hero.gold}
             
-        resp = await self._request_wrapper("post", endpoint, json=payload)
-        return await self.process_result(resp.json(), context)
-
+        return await self._request_wrapper("post", endpoint, json=payload)
+        
+    @api_result
     async def withdraw(self, context, item_code, quantity=1):
-        await self._limiter()
+        
         payload = [{'code': item_code, 'quantity': quantity}]
-        resp = await self._request_wrapper("post", f'/my/{context.current_hero.name}/action/bank/withdraw/item', json=payload)
-        return await self.process_result(resp.json(), context)
-
+        return await self._request_wrapper("post", f'/my/{context.current_hero.name}/action/bank/withdraw/item', json=payload)
+    
+    @api_result
     async def withdraw_items(self, context, items_list: list):
         """
         Withdraw multiple items from the bank.
@@ -49,13 +63,11 @@ class bank_repository:
             items_list: List of dicts with 'code' and 'quantity' keys
                     e.g., [{"code": "copper_bar", "quantity": 5}, {"code": "raw_chicken", "quantity": 10}]
         """
-        await self._limiter()
+        
         payload = [{'code': item['code'], 'quantity': item.get("quantity", 1)} for item in items_list]
-        resp = await self._request_wrapper("post", f'/my/{context.current_hero.name}/action/bank/withdraw/item', json=payload)
-        return await self.process_result(resp.json(), context)
-
-    
-    
+        return await self._request_wrapper("post", f'/my/{context.current_hero.name}/action/bank/withdraw/item', json=payload)
+        
+    #direct method, no context, just data
     async def get_bank_inventory(self):
         resp = await self._request_wrapper("get", f'/my/bank/items')
         data = resp.json()

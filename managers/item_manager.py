@@ -1,8 +1,11 @@
-from controllers.managers.db_manager import DatabaseManager
-from models import hero
+from .db_manager import DatabaseManager
+from models import hero, item
 
 class item_manager:
     def __init__(self):
+        self.collection = []
+
+    def initialize(self):
         self.collection = DatabaseManager.get_collection("items")
 
     async def find_best_craft_item(self, my_hero: hero, skill_name: str, bank_inventory: list = None) -> tuple | None:
@@ -103,10 +106,12 @@ class item_manager:
         return combined_inventory
 
     async def find_by_code(self, item_code):
-        collection = DatabaseManager.get_collection("items")
+        
         query = {
             "code":item_code
         }
-        queried = await collection.find(query).to_list(length=1)
-        return queried[0]
+        queried = await self.collection.find(query).to_list(length=1)
+        if queried:
+            return queried[0]
+        return None
 

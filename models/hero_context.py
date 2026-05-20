@@ -5,3 +5,4 @@ class hero_context:
         from townhall.quest_log import quest_log  # Import local pour éviter les dépendances circulaires
         self.current_hero = initial_hero_obj  # La référence qui va changer souvent
         self.quest_log = quest_log()
+        self.next_action_time=0

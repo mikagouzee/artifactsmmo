@@ -1,4 +1,5 @@
 import asyncio
+import time
 
 from models import hero_context
 from townhall import town_hall, default_farm_quest
@@ -15,13 +16,23 @@ class GameRunner:
         # Liste de tes héros encapsulés dans leur contexte
         heroes = await self.action.get_all_heroes()
         self.hero_contexts = [hero_context(hero) for hero in heroes]
-        self.town_hall = town_hall(heroes)
-
+        self.town_hall = town_hall(heroes, self.db, self.action)
 
     async def run(self):
         """Boucle principale du bot."""
+        await self.town_hall.report_need(
+                    item_code="spruce_wood", 
+                    quantity=100, 
+                    priority=99, 
+                    requester="TEST_SYSTEM"
+                )
+
         while True:
+            
             for context in self.hero_contexts:
+                if getattr(context, 'next_action_time', 0) > time.time():
+                    continue
+
                 hero = context.current_hero
                 queue = context.quest_log
 

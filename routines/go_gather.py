@@ -10,7 +10,7 @@ async def go_gather(context,action:ActionController,db:DbController, resource_co
     # print(f'{context.current_hero.name} wants to equip {tool_code}')
     context = await go_equip(context, tool_code, action, db, slot="weapon", quantity=1)
 
-  dest = await db.get_closest_map(context.current_hero, content_type="resource", content_code=resource_code)
+  dest = await db.get_closest_map(context, content_type="resource", content_code=resource_code)
 
   if dest and not check_location(context.current_hero, dest.x, dest.y):
     context = await action.hero.move(context, dest.x, dest.y)

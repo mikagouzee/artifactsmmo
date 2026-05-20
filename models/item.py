@@ -18,6 +18,7 @@ class item_effect:
 
 @dataclass
 class item:
+    _id:int
     name: str
     code: str
     level: int

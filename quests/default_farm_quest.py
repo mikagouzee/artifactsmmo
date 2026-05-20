@@ -16,7 +16,7 @@ class default_farm_quest(quest):
             context = await go_deposit_gold(context, action, db)
         
         # 2. Si le héros n'a pas de quête officielle (In-game task)
-        if hero.task is None:
+        if not hero.task:
             print(f"[{hero.name}] Pas de task in-game. Récupération d'une task de monstres...")
             # Ton ancien worker adapté : doit accepter 'context', faire l'appel API, 
             # appeler 'process_result(response, context)' et retourner le context mis à jour.
@@ -28,7 +28,7 @@ class default_farm_quest(quest):
             print(f"[{hero.name}] Progression Task : {hero.task_progress}/{hero.task_total}. Combat en cours...")
             # Ton ancienne routine de combat adaptée : fait UN UNIQUE combat,
             # gère le process_result/cooldown, et met à jour le contexte.
-            context = await go_fight(context, action, db)
+            context = await go_fight(context, action, db, monster_code=hero.task)
             return "RUNNING"
 
         # 4. Si la quête officielle est terminée, on va la valider auprès du PNJ

@@ -1,20 +1,37 @@
+from helpers import can_survive
+
+
 async def can_fulfill(hero, request, db) -> bool:
     
-    item_code = request["item"]
+    item_code = request["item_code"]
     
     # 1. Aller chercher les infos de l'item dans ta DB Mongo statique
-    item_info = await db.items.find_one({"code": item_code})
-    if not item_info:
+    db_item = await db.item.find_by_code(item_code)
+    if not db_item:
         return False
-        
-    # Exemple si c'est une ressource à récolter (mineur, botaniste, etc.)
-    required_profession = item_info.get("gathertask", {}).get("code") # ex: "mining"
-    required_level = item_info.get("gathertask", {}).get("level")     # ex: 10
     
-    if required_profession and required_level:
-        # Vérifier le niveau actuel du héros dans ce métier
-        skill_name = f"{required_profession}_level"
-        hero_level = hero.professions.get(skill_name, 0)
-        return hero_level >= required_level
+    match request["type"]:
+        case "craft":
+            required_profession = db_item.get("craft", {}).get("skill") # ex: "mining"
+            required_level = db_item.get("craft", {}).get("level")     # ex: 10    
+            skill_name = f"{required_profession}_level"
+            hero_level = getattr(hero, skill_name)
+            return hero_level >= required_level 
 
-    return False
+        case "gather":
+            required_profession = db_item.get("subtype", "")
+            required_level = db_item.get("level", 1)
+            skill_name = f"{required_profession}_level"
+            hero_level = getattr(hero, skill_name)
+            return hero_level >= required_level
+        
+        case "task_buy":
+            #should be a check on global task accomplished but ¯\_(ツ)_/¯
+            return False
+        
+        case "monster":
+            target_monster = db.monsters.find_by_loot(item_code)
+            return can_survive(hero, target_monster)
+
+        case _:
+            return False
