@@ -5,7 +5,7 @@ from models import hero_context
 from townhall import town_hall, default_farm_quest
 
 
-class GameRunner:
+class GameMaster:
     def __init__(self, action_controller, db_controller):
         self.action = action_controller
         self.db = db_controller

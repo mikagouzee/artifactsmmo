@@ -4,7 +4,7 @@ import httpx
 
 from controllers import ActionController, DbController
 from managers import DatabaseManager
-from runners import GameRunner
+from runners import GameMaster
 
 
 async def main():
@@ -25,7 +25,7 @@ async def main():
         await DatabaseManager.init_db()
         await db.sync_data()
 
-        runner = GameRunner(action, db)
+        runner = GameMaster(action, db)
         await runner.initialize()
         await runner.run()
 

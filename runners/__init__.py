@@ -1,1 +1,1 @@
-from .game_runner import GameRunner
+from .game_master import GameMaster
