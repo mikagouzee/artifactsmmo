@@ -4,9 +4,11 @@ from models import hero, item
 class item_manager:
     def __init__(self):
         self.collection = []
+        self.healing_items = {}
 
     def initialize(self):
         self.collection = DatabaseManager.get_collection("items")
+        self.load_healing_items()
 
     async def find_best_craft_item(self, my_hero: hero, skill_name: str, bank_inventory: list = None) -> tuple | None:
     
@@ -114,4 +116,12 @@ class item_manager:
         if queried:
             return queried[0]
         return None
+    
 
+    async def load_healing_items(self):
+        query = {
+            "effects.code":"heal"
+        }
+        queried = await self.collection.find(query).to_list()
+        if queried:
+            self.healing_items = {k["code"]:k["effects"]["value"] for k in queried}

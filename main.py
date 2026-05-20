@@ -2,6 +2,7 @@ import asyncio
 import os
 import httpx
 
+from CLI.listener import Listener
 from controllers import ActionController, DbController
 from managers import DatabaseManager
 from runners import GameMaster
@@ -27,7 +28,13 @@ async def main():
 
         runner = GameMaster(action, db)
         await runner.initialize()
-        await runner.run()
+
+        listener = Listener()
+        await asyncio.gather(
+            runner.run(),
+            # listener.listen(runner)
+        )
+        
 
 if __name__ == "__main__":
     asyncio.run(main())

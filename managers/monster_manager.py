@@ -49,7 +49,6 @@ class monster_manager:
         else:
             return 1.0 - ((monster_level - player_level) / 10)
 
-
     def calculate_xp(self, monster, player_level):
         monster_level = monster["level"]
         monster_hp = monster["hp"]
@@ -63,7 +62,6 @@ class monster_manager:
             
         xp = round(((monster_level / player_level) * 20 + monster_hp * 0.04) * level_penalty * monster_multiplier)
         return xp
-
 
     async def get_candidates(self, my_hero:hero):
         # Requête MongoDB standard (asynchrone)
@@ -81,6 +79,14 @@ class monster_manager:
     async def find_by_loot(self, item_code):
         if item_code not in self.cache:
             query= {"drops.code": item_code}        
-            queried = await self.collection.find(query).to_list(lenght=1)
+            queried = await self.collection.find(query).to_list(length=1)
             self.cache[item_code]=queried
         return self.cache[item_code]
+    
+    async def find_by_code(self, monster_code):
+        queried = await self.collection.find({'code':monster_code}).to_list(length=1)
+        if queried:
+            return queried[0]
+        else:
+            print(f'monster {monster_code} not found')
+            return None
