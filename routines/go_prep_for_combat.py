@@ -1,5 +1,5 @@
 from controllers import ActionController, DbController
-from helpers import can_survive, check_bag_weight, find_in_bag, check_location, get_best_potion_in_stock, is_equipped
+from helpers import check_bag_weight, find_in_bag, check_location, get_best_potion_in_stock, is_equipped
 from models import hero_context
 from routines import go_deposit_gold, go_deposit_items, go_equip, go_withdraw_items
 

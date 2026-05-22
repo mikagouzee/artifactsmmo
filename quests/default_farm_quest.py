@@ -1,14 +1,15 @@
 from helpers import find_in_bag
 from helpers.check_bag_weight import check_bag_weight
-from routines import go_equip, go_fight, go_gather, go_get_new_task, go_deposit_items, go_deposit_gold, go_complete_task, go_produce, go_withdraw_items
+from routines import go_fight, go_gather, go_get_new_task, go_deposit_items, go_deposit_gold, go_complete_task, go_produce, go_trade_task, go_withdraw_items
 from quests.quest import quest
+from townhall import town_hall
 
 
 class default_farm_quest(quest):
     def __init__(self):
         super().__init__(name="Default_Monster_Farm")
 
-    async def run(self, context, town_hall, action, db) -> str:
+    async def run(self, context, action, db) -> str:
         hero = context.current_hero
         
         if check_bag_weight(hero.inventory) == hero.inventory_max_items:
@@ -28,28 +29,39 @@ class default_farm_quest(quest):
                 context = await go_fight(context, action, db, monster_code=hero.task)
                 return "RUNNING"
             else:
-                print(f"[{hero.name}] Progression Task :  {hero.task_progress}/{hero.task_total}. Récolte en cours...")
-                #gotta check if it's craft or gather
-                item = await db.item.find_by_code(hero.task)
-                currently_hold = find_in_bag(hero.inventory, hero.task)
-                needed = hero.task_total - hero.task_progress
-                in_stock = town_hall.get_stock(hero.task)
-                if in_stock + currently_hold >= needed:
-                    context = await go_withdraw_items(context, action, db, [{"item":item, "quantity":in_stock}])
-                    context = await go_complete_task(context, action, db)
-                    return "RUNNING"
-
-                if item["craft"]:
-                    context = await go_produce(context, action, db, item)
-                else:
-                    source = await db.resource.get_resource_by_drop(hero.task)
-                    context = await go_gather(context, action, db, source["code"])
-                
-                # context = await go_gather(context, action, db, source["code"])
+                context = await self.manage_item_task(context, action, db)
                 return "RUNNING"
+               
         print(f"[{hero.name}] Task in-game complétée ! Validation au Task Master...")
         context = await go_complete_task(context, action, db)
         
         return "COMPLETED"
     
 
+    async def manage_item_task(self, context, action, db):
+        hero = context.current_hero
+        print(f"[{hero.name}] Progression Task :  {hero.task_progress}/{hero.task_total}. Récolte en cours...")
+        #gotta check if it's craft or gather
+        item = await db.item.find_by_code(hero.task)
+        currently_hold = find_in_bag(hero.inventory, hero.task)
+        needed = hero.task_total - hero.task_progress
+        # in_bank = await action.bank.get_bank_inventory()
+        # in_stock = find_in_bag(in_bank, hero.task)
+
+        from_cache = await town_hall.get_stock(hero.task)
+        
+        if currently_hold >= needed:
+            context = await go_trade_task(context, action, db)
+            return "RUNNING"
+        elif from_cache:
+            context = await go_withdraw_items(context, action, db, [{"item":item, "quantity":from_cache}])
+            return "RUNNING"
+
+        if item["craft"]:
+            context = await go_produce(context, action, db, item)
+        else:
+            source = await db.resource.get_resource_by_drop(hero.task)
+            context = await go_gather(context, action, db, source["code"])
+        
+        # context = await go_gather(context, action, db, source["code"])
+        return context

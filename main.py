@@ -2,10 +2,10 @@ import asyncio
 import os
 import httpx
 
-from CLI.listener import Listener
 from controllers import ActionController, DbController
 from managers import DatabaseManager
 from runners import GameMaster
+from townhall import town_hall
 
 
 async def main():
@@ -21,18 +21,23 @@ async def main():
     headers=HEADERS,
     base_url = BASE_URL,
     timeout=DEFAULT_TIME_OUT) as http_client:
+        
         action = ActionController(http_client)
         db = DbController(http_client)
         await DatabaseManager.init_db()
         await db.sync_data()
 
         runner = GameMaster(action, db)
+
+        town_hall.action = action
+        town_hall.db = db
+        # town_hall.heroes = await action.get_all_heroes()
+        
+
         await runner.initialize()
 
-        listener = Listener()
         await asyncio.gather(
-            runner.run(),
-            # listener.listen(runner)
+            runner.run()
         )
         
 

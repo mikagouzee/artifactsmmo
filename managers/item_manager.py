@@ -119,10 +119,15 @@ class item_manager:
         return None
     
     async def load_healing_items(self):
-        query = {
+        food_query = {
             "effects.code":"heal",
         }
-        queried = await self.collection.find(query).to_list()
-        if queried:
-            self.food = {k["code"]:k["effects"][0]["value"] for k in queried if k["subtype"] == "food"}
-            self.healing_potions = {k["code"]:k["effects"]["value"] for k in queried if k["subtype"] == "potion"}
+        food_in_db = await self.collection.find(food_query).to_list()
+        if food_in_db:
+            self.food = {k["code"]:k["effects"][0]["value"] for k in food_in_db if k["subtype"] == "food"}
+        potion_query = {
+            "effects.code":"restore"
+        }
+        potion_in_db = await self.collection.find(potion_query).to_list()
+        self.healing_potions = {k["code"]:k["effects"][0]["value"] for k in potion_in_db if k["subtype"] == "potion"}
+        # print(f"loaded potions : ",self.healing_potions)

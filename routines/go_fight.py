@@ -11,9 +11,8 @@ async def go_fight(context:hero_context, action:ActionController, db:DbControlle
   
   if monster_code:
     monster = await db.monster.find_by_code(monster_code)  
-    if not can_survive(context.current_hero, monster):
+    if not can_survive(context, monster):
       monster_code = await db.monster.get_best_monster(context.current_hero)
-      
 
     dest = await db.get_closest_map(context, content_type="monster", content_code=monster_code)
     if dest and not check_location(context.current_hero, dest.x, dest.y):

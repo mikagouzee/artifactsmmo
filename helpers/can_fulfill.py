@@ -1,10 +1,11 @@
 from helpers import can_survive
 
 
-async def can_fulfill(hero, request, db) -> bool:
+async def can_fulfill(context, request, db) -> bool:
     
     item_code = request["item_code"]
-    
+    hero = context.current_hero
+
     # 1. Aller chercher les infos de l'item dans ta DB Mongo statique
     db_item = await db.item.find_by_code(item_code)
     if not db_item:
@@ -31,7 +32,7 @@ async def can_fulfill(hero, request, db) -> bool:
         
         case "monster":
             target_monster = db.monsters.find_by_loot(item_code)
-            return can_survive(hero, target_monster)
+            return can_survive(context, target_monster)
 
         case _:
             return False

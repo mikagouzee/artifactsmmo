@@ -34,7 +34,16 @@ class bank_repository:
             quantity = find_in_bag(context.current_hero.inventory, item_code)
             payload = [{'code': item_code, 'quantity': quantity}]
             return await self._request_wrapper("post", endpoint, json=payload)
-            
+
+    @api_result
+    async def deposit_all_but(self, context, item_list):
+        
+        endpoint = f'/my/{context.current_hero.name}/action/bank/deposit/item'
+        payload = [{"code": i["code"], "quantity": i["quantity"]} for i in context.current_hero.inventory if i.get("quantity", 0) > 0 and i["code"] not in item_list]
+        if not payload:
+             return context
+        else:
+            return await self._request_wrapper("post", endpoint, json=payload)
         
     @api_result
     async def deposit_gold(self, context):

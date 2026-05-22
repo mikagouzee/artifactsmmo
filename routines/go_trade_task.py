@@ -13,6 +13,8 @@ async def go_trade_task(context, action:ActionController, db:DbController):
     print(f'Moving to the task master : {dest.x} {dest.y}')
     context = await action.hero.move(context, dest.x, dest.y)
 
-  context = await action.task.task_trade(context, my_hero.task, find_in_bag(my_hero.inventory, my_hero.task))
+  still_missing = my_hero.task_total - my_hero.task_progress
+  quantity = min(still_missing, find_in_bag(my_hero.inventory, my_hero.task))
+  context = await action.task.task_trade(context, quantity)
 
   return context
