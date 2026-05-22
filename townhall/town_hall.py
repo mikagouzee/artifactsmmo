@@ -2,6 +2,8 @@ from helpers import can_fulfill, find_in_bag
 from controllers import action_controller, DbController
 
 class town_hall:
+    bank_cache:list
+
     def __init__(self, heroes, db_controller:DbController, action_controller:action_controller):
         self.task_queue = []
         self.heroes = heroes
@@ -9,6 +11,7 @@ class town_hall:
         self.bank_cache = {}
         self.db = db_controller
         self.action = action_controller
+        self.bank_cache = []
 
     async def assign_quest(self, context, db):
         # Logic to assign a task to a hero

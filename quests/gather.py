@@ -13,7 +13,7 @@ class gather(quest):
         
     async def run(self, context, town_hall, action, db):
         hero = context.current_hero
-        self.source = await db.resource.get_resource_name_by_drop(self.item_code)
+        self.source = await db.resource.get_resource_by_drop(self.item_code)
 
         total_available = await town_hall.get_stock(self.item_code) + find_in_bag(hero.inventory, self.item_code)
         if total_available >= self.target_quantity:

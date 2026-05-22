@@ -26,7 +26,7 @@ class resource_manager:
 
         return results[0].get("code")
 
-    async def get_resource_name_by_drop(self, drop_code:str):
+    async def get_resource_by_drop(self, drop_code:str):
         query = {
             "drops.code": drop_code
         }

@@ -4,7 +4,7 @@ from helpers import check_bag_weight, check_location
 from .go_equip import go_equip
 
 async def go_gather(context,action:ActionController,db:DbController, resource_code, tool_code:str=None):
-  
+
   print(f'{context.current_hero.name} will now gather {resource_code}')
   if tool_code and context.current_hero.weapon_slot != tool_code:
     # print(f'{context.current_hero.name} wants to equip {tool_code}')
@@ -17,7 +17,8 @@ async def go_gather(context,action:ActionController,db:DbController, resource_co
 
   max_weight = context.current_hero.inventory_max_items
 
-  while (check_bag_weight(context.current_hero.inventory) < max_weight ):
+  if (check_bag_weight(context.current_hero.inventory) < max_weight ):
     context = await action.hero.gather(context)
+  
 
   return context

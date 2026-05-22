@@ -97,7 +97,7 @@ class DbController:
         print(f"Synced {len(monsters_data)} Monsters.")
 
     async def sync_data(self):
-        self.item.initialize()
+        await self.item.initialize()
         self.monster.initialize()
         self.resource.initialize()
 
