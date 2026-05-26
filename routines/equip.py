@@ -18,8 +18,9 @@ async def go_equip(context, item_code, action:ActionController,db:db_controller,
       dest = await db.get_closest_map(context, content_code='bank', content_type='bank')
       if dest and not check_location(context.current_hero, dest.x, dest.y):
         context = await action.hero.move(context, dest.x, dest.y)  
-        context = await action.bank.withdraw(context, item_code, quantity)
-        context = await action.hero.equip(context, item_code, slot=slot, qtty=quantity)  
+        
+      context = await action.bank.withdraw(context, item_code, quantity)
+      context = await action.hero.equip(context, item_code, slot=slot, qtty=quantity)  
     else:
         await town_hall.report_need(
                     quest_type="craft",

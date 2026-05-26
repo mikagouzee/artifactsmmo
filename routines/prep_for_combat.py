@@ -6,6 +6,9 @@ from routines import go_deposit_gold, go_deposit_items, go_equip, go_withdraw_it
 
 async def go_prep_for_combat(context:hero_context, action:ActionController, db:DbController):
   hero = context.current_hero
+  if context.is_ready_for_fight():
+    return context
+  
   #go_to_bank
   dest = await db.get_closest_map(context, content_type="bank", content_code="bank")
   if dest and not check_location(context.current_hero, dest.x, dest.y):

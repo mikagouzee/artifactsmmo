@@ -1,3 +1,4 @@
+from helpers.inventory import check_bag_weight
 from managers import item_manager
 
 
@@ -24,3 +25,14 @@ class hero_context:
             if code in self.item_manager.healing_potions:
                 potions.append({"code":code,"quantity":qty,"restore":self.item_manager.healing_potions[code]})
         return potions
+    
+    
+    def is_ready_for_fight(self):
+        hero = self.current_hero
+        if check_bag_weight(hero.inventory) == hero.inventory_max_items:
+            return False
+        current_potions = self.get_equiped_healing_potions()
+        if not current_potions:
+            return False
+        
+        return True

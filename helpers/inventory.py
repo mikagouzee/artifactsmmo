@@ -1,5 +1,3 @@
-from models import hero
-# from helpers import find_in_bag
 
 def check_is_equipped(hero, item):
   code = item["code"]
