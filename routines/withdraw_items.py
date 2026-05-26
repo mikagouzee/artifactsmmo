@@ -1,6 +1,7 @@
 from controllers import ActionController
 from controllers.db_controller import DbController
 from helpers import check_bag_weight, check_location
+from townhall import town_hall
 
 
 async def go_withdraw_items(context,action:ActionController,db:DbController, items_list: list):
@@ -16,5 +17,6 @@ async def go_withdraw_items(context,action:ActionController,db:DbController, ite
     context = await action.bank.deposit_all_but(context, items_list)
   
   context = await action.bank.withdraw_items(context, items_list)
+  await town_hall.refresh_bank_cache()
 
   return context

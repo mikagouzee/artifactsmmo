@@ -51,6 +51,7 @@ class craft_quest(quest):
                         requester=hero.name,
                         assigned_to = None
                     )
+            print(f"[{hero.name}] Not enough resources to craft any {self.target}. Reported needs for all ingredients.")
             return "FAILED"
 
         # Signale le manque pour ce qu'on ne peut pas encore faire

@@ -44,8 +44,13 @@ class GameMaster:
                     continue
                await self.progress_quest(context)
 
+            for quest in town_hall.resource_requests:
+                print(f"Pending request: {quest['type']} {quest['target']} x{quest['quantity']} (requested by {quest['requester']}, assigned to {quest['assigned_to']})")
+
             # Pause globale entre deux vérifications de l'équipe (ex: 1 seconde)
             await asyncio.sleep(1)
+
+
 
     def decide_next_quest(self, context):
         """Logique business : détermine la tâche à injecter."""

@@ -1,7 +1,6 @@
 from helpers import can_fulfill, check_quantity_in_bag
 from controllers import action_controller, DbController
 
-
 class town_hall:
     bank_cache:list             = []
     task_queue: list            = []
@@ -20,6 +19,7 @@ class town_hall:
             if await can_fulfill(context, request, db):
                 # chosen_request = town_hall.resource_requests.pop(index)
                 request["assigned_to"] = context.current_hero.name
+                print(f"Assigned {request['type']} quest for {request['target']} to {context.current_hero.name}")
                 match request["type"] :
                     case "craft":
                         from quests.craft import craft_quest
@@ -71,6 +71,10 @@ class town_hall:
             town_hall.bank_cache = await town_hall.action.bank.get_bank_inventory()
         
         return check_quantity_in_bag(town_hall.bank_cache, item_code)
+    
+    @staticmethod
+    async def refresh_bank_cache():
+        town_hall.bank_cache = await town_hall.action.bank.get_bank_inventory()
     
     @staticmethod
     async def define_quest_type(item_code):

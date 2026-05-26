@@ -1,5 +1,4 @@
-from .db_manager import DatabaseManager
-from models import hero
+from managers import DatabaseManager
 # from helpers import can_survive
 
 class monster_manager:

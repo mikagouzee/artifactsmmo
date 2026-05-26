@@ -1,5 +1,6 @@
 # db_controller.py
-from managers import resource_manager, monster_manager, DatabaseManager, item_manager
+from managers import  DatabaseManager
+from controllers.repositories import item_manager, resource_manager, monster_manager
 from models.map_tile import MapTile
 
 class DbController:

@@ -1,4 +1,4 @@
-from .db_manager import DatabaseManager
+from managers import DatabaseManager
 
 class resource_manager:
     def __init__(self):

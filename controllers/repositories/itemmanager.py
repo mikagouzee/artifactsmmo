@@ -1,5 +1,4 @@
-from .db_manager import DatabaseManager
-from models import hero, item
+from managers import DatabaseManager
 
 class item_manager:
     def __init__(self):
@@ -11,7 +10,7 @@ class item_manager:
         self.collection = DatabaseManager.get_collection("items")
         await self.load_healing_items()
 
-    async def find_best_craft_item(self, my_hero: hero, skill_name: str, bank_inventory: list = None, must_be_craftable=True) -> tuple | None:
+    async def find_best_craft_item(self, my_hero, skill_name: str, bank_inventory: list = None, must_be_craftable=True) -> tuple | None:
     
         # Get the hero's current skill level
         skill_level_attr = f"{skill_name}_level"
@@ -54,9 +53,6 @@ class item_manager:
                 combined_inventory[code] = combined_inventory.get(code, 0) + qty
 
         return combined_inventory
-
-    # def find_best_craftable(self, candidates, combined_inventory):
-    #     return self.find_best(candidates, combined_inventory, True)
 
     def find_best(self, candidates, combined_inventory, must_be_craftable):
         best_item = None

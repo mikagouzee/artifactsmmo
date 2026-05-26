@@ -2,8 +2,8 @@ from dataclasses import replace
 from controllers import ActionController
 from controllers.db_controller import DbController
 from helpers import check_bag_weight, check_quantity_in_bag, check_location
-from models import hero
 from models.hero_context import hero_context
+from townhall import town_hall
 
 
 async def go_deposit_items(context:hero_context ,action:ActionController,db:DbController, resource_code=None ):
@@ -20,5 +20,5 @@ async def go_deposit_items(context:hero_context ,action:ActionController,db:DbCo
     context = await action.hero.move(context, dest.x, dest.y)
     
   context = await action.bank.deposit(context, resource_code, qtty)
-
+  await town_hall.refresh_bank_cache()
   return context

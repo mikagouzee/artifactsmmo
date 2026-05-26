@@ -3,6 +3,7 @@ import math
 
 from helpers.craft import check_quantity_in_bag
 
+
 def can_survive(context, monster) -> bool:
     hero = context.current_hero
     
@@ -131,10 +132,13 @@ def find_best_monster(context, candidates):
         result_code = best_monster.get("code") if best_monster else "chicken"
         return result_code
 
-def find_best_potion_in_stock(context, bank_bag, healing_potions):
+def find_best_potion_in_stock(context, bag, healing_potions):
   available = []
+  
+  if isinstance(bag, dict):
+    bag = [{"code":k, "quantity": v} for k, v in bag.items()]
 
-  for item in bank_bag:
+  for item in bag:
     if item["code"] in healing_potions:
       available.append({
         "code":item["code"],
@@ -173,3 +177,4 @@ async def heal(context, action, db):
     elif context.current_hero.hp <= context.current_hero.max_hp /2:
       context = await action.hero.rest(context)
   return context
+
