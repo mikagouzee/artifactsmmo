@@ -1,33 +1,40 @@
-from helpers import check_bag_weight
-from helpers.find_in_bag import find_in_bag
+from helpers import check_bag_weight, check_quantity_in_bag
 from routines import go_gather
-from routines.go_deposit_items import go_deposit_items
+from routines.deposit_items import go_deposit_items
 from .quest import quest
 
-class gather(quest):
+class gather_quest(quest):
     def __init__(self, item_code:str, quantity:int):
         super().__init__(f"GATHER_{quantity}_{item_code}")
-        self.item_code = item_code
-        self.source = ''
+        self.target = item_code
+        self.type = "gather"
+        self.source = None
         self.target_quantity = quantity
+        self.step = "GATHER"
+        self.deposited = 0
         
-    async def run(self, context, town_hall, action, db):
+    async def run(self, context, action, db):
         hero = context.current_hero
-        self.source = await db.resource.get_resource_by_drop(self.item_code)
-
-        total_available = await town_hall.get_stock(self.item_code) + find_in_bag(hero.inventory, self.item_code)
-        if total_available >= self.target_quantity:
-            return "COMPLETED"
         
-        in_pockets = find_in_bag(hero.inventory, self.item_code)
-
-        if in_pockets >= self.target_quantity:
-            context = await go_deposit_items(context, action, db, self.item_code, self.target_quantity)
-            return "COMPLETED"
+        if self.source is None: 
+            self.source = await db.resource.get_resource_by_drop(self.target)
         
-        if check_bag_weight(hero.inventory) + self.target_quantity > hero.inventory_max_items:
-            context = await go_deposit_items(context, action, db)
-            return "RUNNING" # On considère que le héros va faire de la place en déposant des items à la banque. On redemandera au prochain tick quoi faire.
+        if self.step == "DEPOSIT":    
+            in_pockets = check_quantity_in_bag(hero.inventory, self.target)
+            context = await go_deposit_items(context, action, db, self.target)
+            self.deposited += in_pockets
+            self.step = "GATHER"
+        
+            if self.deposited >= self.target_quantity:
+                return "COMPLETED"
+            return "RUNNING"
+
+        in_pockets = check_quantity_in_bag(hero.inventory, self.target)
+        bag_full = check_bag_weight(hero.inventory) >= hero.inventory_max_items
+
+        if in_pockets + self.deposited >= self.target_quantity or bag_full:
+            self.step = "DEPOSIT"
+            return "RUNNING"
         
         context = await go_gather(context, action, db, self.source["code"])
         return "RUNNING"

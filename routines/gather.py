@@ -1,7 +1,7 @@
 from dataclasses import replace
 from controllers import ActionController, DbController
 from helpers import check_bag_weight, check_location
-from .go_equip import go_equip
+from .equip import go_equip
 
 async def go_gather(context,action:ActionController,db:DbController, resource_code, tool_code:str=None):
 

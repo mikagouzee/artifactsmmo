@@ -27,13 +27,11 @@ async def main():
         await DatabaseManager.init_db()
         await db.sync_data()
 
-        runner = GameMaster(action, db)
-
         town_hall.action = action
         town_hall.db = db
         # town_hall.heroes = await action.get_all_heroes()
         
-
+        runner = GameMaster(action, db)
         await runner.initialize()
 
         await asyncio.gather(

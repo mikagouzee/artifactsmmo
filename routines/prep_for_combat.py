@@ -1,10 +1,10 @@
 from controllers import ActionController, DbController
-from helpers import check_bag_weight, find_in_bag, check_location, get_best_potion_in_stock, is_equipped
+from helpers import check_bag_weight, check_quantity_in_bag, check_location, find_best_potion_in_stock, check_is_equipped
 from models import hero_context
 from routines import go_deposit_gold, go_deposit_items, go_equip, go_withdraw_items
 
 
-async def go_prep_for_combat(context:hero_context, action:ActionController, db:DbController, monster):
+async def go_prep_for_combat(context:hero_context, action:ActionController, db:DbController):
   hero = context.current_hero
   #go_to_bank
   dest = await db.get_closest_map(context, content_type="bank", content_code="bank")
@@ -24,10 +24,12 @@ async def go_prep_for_combat(context:hero_context, action:ActionController, db:D
   #grab potions
   bank_bag = await action.bank.get_bank_inventory()
   potions = db.item.healing_potions
-  potion = get_best_potion_in_stock(context, bank_bag, potions)
-  as_item = db.item.find_by_code(potion)
-  if potion and not find_in_bag(context.current_hero, potion) and not is_equipped(context.current_hero, as_item):
-    context = await go_equip(context, potion, action, db, quantity=10)
+  potion = find_best_potion_in_stock(context, bank_bag, potions)
+  as_item = await db.item.find_by_code(potion["code"])
+  in_bag = check_quantity_in_bag(context.current_hero.inventory, potion)
+  is_equipped = check_is_equipped(context.current_hero, as_item)
+  if potion and not in_bag and not is_equipped:
+    context = await go_equip(context, as_item["code"], action, db, 'utility1', quantity=10)
   
   return context
 

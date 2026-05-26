@@ -11,7 +11,7 @@ class item_manager:
         self.collection = DatabaseManager.get_collection("items")
         await self.load_healing_items()
 
-    async def find_best_craft_item(self, my_hero: hero, skill_name: str, bank_inventory: list = None) -> tuple | None:
+    async def find_best_craft_item(self, my_hero: hero, skill_name: str, bank_inventory: list = None, must_be_craftable=True) -> tuple | None:
     
         # Get the hero's current skill level
         skill_level_attr = f"{skill_name}_level"
@@ -35,62 +35,9 @@ class item_manager:
         # Create a combined inventory lookup from both bank and hero inventory
         combined_inventory = self.get_available_resources(bank_inventory, my_hero.inventory)
         
-        best_item = None
-        best_craftable_qty = 0
-        best_ingredient_count = float('inf')
-        best_level = -1
+        best_item = self.find_best(candidates, combined_inventory, must_be_craftable)
         
-        for item in candidates:
-            # Get recipe details
-            recipe = item.get("craft", {})
-            required_items = recipe.get("items", [])
-            required_quantity = recipe.get("quantity", 1)
-            item_level = item.get("level", 0)
-            
-            # Calculate how many times we can craft this item
-            craftable_qty = float('inf')
-            
-            for required in required_items:
-                ingredient_code = required.get("code")
-                ingredient_qty = required.get("quantity", 0)
-                
-                available_qty = combined_inventory.get(ingredient_code, 0)
-                
-                # How many crafts can we do with this ingredient?
-                times_can_craft = available_qty // ingredient_qty if ingredient_qty > 0 else 0
-                
-                # The bottleneck ingredient determines how many we can craft
-                craftable_qty = min(craftable_qty, times_can_craft)
-            
-            # If we can't craft it, skip
-            if craftable_qty <= 0 or craftable_qty == float('inf'):
-                continue
-            
-            # Total quantity of items we'd get
-            final_qty = craftable_qty * required_quantity
-            
-            # Determine if this is better than our current best
-            # Priority: higher level > fewer ingredients > more craftable quantity
-            is_better = False
-            
-            if item_level > best_level:
-                is_better = True
-            elif item_level == best_level:
-                if len(required_items) < best_ingredient_count:
-                    is_better = True
-                elif len(required_items) == best_ingredient_count and final_qty > best_craftable_qty:
-                    is_better = True
-            
-            if is_better:
-                best_item = item
-                best_craftable_qty = final_qty
-                best_ingredient_count = len(required_items)
-                best_level = item_level
-        
-        if best_item is None:
-            return None
-        
-        return (best_item, best_craftable_qty)
+        return best_item
 
     def get_available_resources(self, bank_inventory, hero_inventory):
         if bank_inventory is None:
@@ -107,6 +54,51 @@ class item_manager:
                 combined_inventory[code] = combined_inventory.get(code, 0) + qty
 
         return combined_inventory
+
+    # def find_best_craftable(self, candidates, combined_inventory):
+    #     return self.find_best(candidates, combined_inventory, True)
+
+    def find_best(self, candidates, combined_inventory, must_be_craftable):
+        best_item = None
+        best_craftable_qty = -1
+        best_ingredient_count = float('inf')
+        best_level = -1
+
+        for item in candidates:
+            recipe = item.get("craft", {})
+            required_items = recipe.get("items", [])
+            required_quantity = recipe.get("quantity", 1)
+            item_level = item.get("level", 0)
+
+            craftable_qty = 0
+            for required in required_items:
+                ingredient_code = required.get("code")
+                ingredient_qty = required.get("quantity", 0)
+                available_qty = combined_inventory.get(ingredient_code, 0)
+                times_can_craft = available_qty // ingredient_qty if ingredient_qty > 0 else 0
+                craftable_qty = min(craftable_qty, times_can_craft)
+
+            if must_be_craftable and craftable_qty <= 0:
+                continue
+
+            final_qty = craftable_qty * required_quantity
+
+            is_better = False
+            if item_level > best_level:
+                is_better = True
+            elif item_level == best_level:
+                if len(required_items) < best_ingredient_count:
+                    is_better = True
+                elif len(required_items) == best_ingredient_count and final_qty > best_craftable_qty:
+                    is_better = True
+
+            if is_better:
+                best_item = item
+                best_craftable_qty = final_qty
+                best_ingredient_count = len(required_items)
+                best_level = item_level
+
+        return (best_item, best_craftable_qty) if best_item else None
 
     async def find_by_code(self, item_code):
         
@@ -125,6 +117,7 @@ class item_manager:
         food_in_db = await self.collection.find(food_query).to_list()
         if food_in_db:
             self.food = {k["code"]:k["effects"][0]["value"] for k in food_in_db if k["subtype"] == "food"}
+            
         potion_query = {
             "effects.code":"restore"
         }

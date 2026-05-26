@@ -2,7 +2,7 @@ import asyncio
 import sys
 
 from CLI.bot_argument_parser import BotArgumentParser
-from quests.gather import gather as GatherQuest
+from quests.gather import gather_quest as GatherQuest
 
 
 class Listener():

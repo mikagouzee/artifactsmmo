@@ -1,11 +1,11 @@
 from controllers import ActionController, DbController
-from helpers import check_location, find_in_bag
+from helpers import check_location, check_quantity_in_bag
 from models import hero
 
 
 async def go_trade_task(context, action:ActionController, db:DbController):
   my_hero = context.current_hero
-  if not find_in_bag(my_hero.inventory, my_hero.task):
+  if not check_quantity_in_bag(my_hero.inventory, my_hero.task):
     return context    
   
   dest = await db.get_closest_map(context, content_type="tasks_master", content_code=my_hero.task_type)
@@ -14,7 +14,7 @@ async def go_trade_task(context, action:ActionController, db:DbController):
     context = await action.hero.move(context, dest.x, dest.y)
 
   still_missing = my_hero.task_total - my_hero.task_progress
-  quantity = min(still_missing, find_in_bag(my_hero.inventory, my_hero.task))
+  quantity = min(still_missing, check_quantity_in_bag(my_hero.inventory, my_hero.task))
   context = await action.task.task_trade(context, quantity)
 
   return context

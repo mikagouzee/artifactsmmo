@@ -1,7 +1,7 @@
 from dataclasses import replace
 from controllers import ActionController
 from controllers.db_controller import DbController
-from helpers import check_location, find_in_bag, find_max_craftable_quantity
+from helpers import check_location, check_quantity_in_bag, find_max_craftable_quantity
 from models import item
 from routines import go_craft, go_withdraw_items
 
@@ -24,7 +24,7 @@ async def go_produce(context, action:ActionController,db:DbController, desired:i
   for ingredient in ingredient_list:
     total_needed = ingredient["quantity"] * can_carry
   
-    in_pockets = find_in_bag(context.current_hero.inventory, ingredient["code"])
+    in_pockets = check_quantity_in_bag(context.current_hero.inventory, ingredient["code"])
     can_carry += (in_pockets/ingredient["quantity"])
     amount_to_withdraw = max(0, total_needed - in_pockets)
     

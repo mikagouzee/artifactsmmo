@@ -1,11 +1,11 @@
 from controllers import ActionController, DbController
-from helpers import can_craft, check_location
+from helpers import check_can_craft, check_location
 from models import item
 
 async def go_craft(context, action:ActionController,db:DbController, desired:item, qtty:int=1):  
   
   print(f"{context.current_hero.name} will now try to craft {desired["code"]} at {desired["craft"]["skill"]}")
-  if not can_craft(context, desired["craft"]):
+  if not check_can_craft(context, desired["craft"]):
     return context.current_hero
 
   context = await go_to_workshop(context, desired["craft"]["skill"], db, action)  

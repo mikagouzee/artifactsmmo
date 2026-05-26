@@ -1,18 +1,17 @@
-from helpers import can_survive
 
+from helpers.combat import can_survive
 
-async def can_fulfill(context, request, db) -> bool:
-    
-    item_code = request["item_code"]
+async def can_fulfill(context, request, db) -> bool:  
+    target = request["target"]
     hero = context.current_hero
+    quest_type = request["type"]
 
-    # 1. Aller chercher les infos de l'item dans ta DB Mongo statique
-    db_item = await db.item.find_by_code(item_code)
-    if not db_item:
-        return False
-    
-    match request["type"]:
+    match quest_type:
         case "craft":
+            db_item = await db.item.find_by_code(target)
+            if not db_item:
+                return False
+
             required_profession = db_item.get("craft", {}).get("skill") # ex: "mining"
             required_level = db_item.get("craft", {}).get("level")     # ex: 10    
             skill_name = f"{required_profession}_level"
@@ -20,6 +19,9 @@ async def can_fulfill(context, request, db) -> bool:
             return hero_level >= required_level 
 
         case "gather":
+            db_item = await db.item.find_by_code(target)
+            if not db_item:
+                return False
             required_profession = db_item.get("subtype", "")
             required_level = db_item.get("level", 1)
             skill_name = f"{required_profession}_level"
@@ -31,7 +33,7 @@ async def can_fulfill(context, request, db) -> bool:
             return False
         
         case "monster":
-            target_monster = db.monsters.find_by_loot(item_code)
+            target_monster = await db.monsters.find_by_code(target)
             return can_survive(context, target_monster)
 
         case _:

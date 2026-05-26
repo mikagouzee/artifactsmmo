@@ -1,7 +1,9 @@
-from helpers import find_in_bag
-from helpers.check_bag_weight import check_bag_weight
+from helpers import check_quantity_in_bag, check_bag_weight
+from helpers.inventory import check_is_equipped
 from routines import go_fight, go_gather, go_get_new_task, go_deposit_items, go_deposit_gold, go_complete_task, go_produce, go_trade_task, go_withdraw_items
 from quests.quest import quest
+from routines.equip import go_equip
+from routines.prep_for_combat import go_prep_for_combat
 from townhall import town_hall
 
 
@@ -11,6 +13,8 @@ class default_farm_quest(quest):
 
     async def run(self, context, action, db) -> str:
         hero = context.current_hero
+        self.target = hero.task
+        self.type = "task"
         
         if check_bag_weight(hero.inventory) == hero.inventory_max_items:
             print(f"[{hero.name}] Inventaire plein ! Passage à la banque.")
@@ -24,8 +28,11 @@ class default_farm_quest(quest):
         
         if hero.task_progress < hero.task_total:
             if hero.task_type=="monsters":
-                print(f"[{hero.name}] Progression Task : {hero.task_progress}/{hero.task_total}. Combat en cours...")
                 #check if the hero has healing potions on him
+                
+                #context = await self.prep_potions(context, action, db)
+                context = await go_prep_for_combat(context, action, db)
+                
                 context = await go_fight(context, action, db, monster_code=hero.task)
                 return "RUNNING"
             else:
@@ -36,14 +43,26 @@ class default_farm_quest(quest):
         context = await go_complete_task(context, action, db)
         
         return "COMPLETED"
-    
+   
+   
+   
+    async def prep_potions(self, context, action, db):
+        potions = [item for item in context.current_hero.inventory if item["code"] in db.item.healing_potions]
+        if potions:
+            best_potion = max(potions, key=lambda x: db.item.healing_potions[x["code"]])
+            as_item = await db.item.find_by_code(best_potion["code"])
+            if not check_is_equipped(context.current_hero, as_item):
+                context = await go_equip(context, best_potion["code"], action, db, "utility_slot_1", quantity=50)
+        return context
+
+ 
 
     async def manage_item_task(self, context, action, db):
         hero = context.current_hero
         print(f"[{hero.name}] Progression Task :  {hero.task_progress}/{hero.task_total}. Récolte en cours...")
         #gotta check if it's craft or gather
         item = await db.item.find_by_code(hero.task)
-        currently_hold = find_in_bag(hero.inventory, hero.task)
+        currently_hold = check_quantity_in_bag(hero.inventory, hero.task)
         needed = hero.task_total - hero.task_progress
         # in_bank = await action.bank.get_bank_inventory()
         # in_stock = find_in_bag(in_bank, hero.task)
