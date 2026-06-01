@@ -17,7 +17,7 @@ class hunt_quest(quest):
         self.source = None
         self.target_quantity = quantity
         self.step = "HUNT"
-        self.deposited = 0
+        self.progress = 0
         
     async def run(self, context, action, db):        
         if self.source is None: 
@@ -27,18 +27,19 @@ class hunt_quest(quest):
           dest = await db.get_closest_map(context, content_type="bank", content_code="bank")
           
           if dest and not check_location(context.current_hero, dest.x, dest.y):
-            print(f'Moving to the bank : {dest.x} {dest.y}')
+            print(f"[{context.current_hero.name}] Moving to the bank: {dest.x} {dest.y}")
             context = await action.hero.move(context, dest.x, dest.y)
           
             context = await self.get_potions(context, action, db)
             self.step = "HUNT"
         
-            if self.hunted >= self.target_quantity:
+            if self.progress >= self.target_quantity:
                 return "COMPLETED"
             return "RUNNING"
 
         if self.step == "HUNT":
           context = await go_fight(context, action, db, self.source["code"])
+          self.progress += 1
           
           return "RUNNING"
       
@@ -56,7 +57,7 @@ class hunt_quest(quest):
       else:
         town_hall.report_need(
           quest_type="craft",
-          target="small_health_potion", 
+          target="minor_health_potion", 
           quantity=500, 
           priority=99, 
           requester=context.current_hero.name,

@@ -1,13 +1,13 @@
 from helpers.combat import find_best_potion_in_stock
 from helpers.inventory import check_is_equipped, check_bag_weight
 from helpers.craft import check_available_resources, check_quantity_in_bag
-from routines import go_fight, go_gather, go_get_new_task, go_deposit_items, go_deposit_gold, go_complete_task, go_produce, go_trade_task, go_withdraw_items
+from routines import go_fight, go_gather, go_get_new_task, go_deposit_items, go_produce, go_deposit_gold, go_complete_task, go_trade_task, go_withdraw_items
 from quests.quest import quest
 from routines.equip import go_equip
 from townhall import town_hall
 
 
-class default_farm_quest(quest):
+class default_quest(quest):
     def __init__(self):
         super().__init__(name="Default_Monster_Farm")
 
@@ -71,7 +71,7 @@ class default_farm_quest(quest):
         else:
             town_hall.report_need(
             quest_type="craft",
-            target="small_health_potion", 
+            target="minor_health_potion", 
             quantity=500, 
             priority=99, 
             requester=context.current_hero.name,

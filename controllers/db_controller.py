@@ -71,7 +71,7 @@ class DbController:
 
         collection.create_index({"code":1})
         collection.create_index({"craft":1})
-        print(f"Synced {len(items_data)} Items.")
+        print(f"Synced {len(items_data)} items.")
 
     async def sync_monsters(self):
         collection = DatabaseManager.db["monsters"]
@@ -95,7 +95,7 @@ class DbController:
 
         collection.create_index({"code":1})
         collection.create_index({"drops.code":1})
-        print(f"Synced {len(monsters_data)} Monsters.")
+        print(f"Synced {len(monsters_data)} monsters.")
 
     async def sync_data(self):
         await self.item.initialize()

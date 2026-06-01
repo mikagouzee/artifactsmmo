@@ -5,7 +5,7 @@ from .equip import go_equip
 
 async def go_gather(context,action:ActionController,db:DbController, resource_code, tool_code:str=None):
 
-  print(f'{context.current_hero.name} will now gather {resource_code}')
+  print(f"[{context.current_hero.name}] Gathering {resource_code}.")
   if tool_code and context.current_hero.weapon_slot != tool_code:
     # print(f'{context.current_hero.name} wants to equip {tool_code}')
     context = await go_equip(context, tool_code, action, db, slot="weapon", quantity=1)

@@ -36,7 +36,7 @@ class monster_manager:
         if queried:
             return queried[0]
         else:
-            print(f'monster {monster_code} not found')
+            print(f"Monster {monster_code} not found.")
             return None
         
    

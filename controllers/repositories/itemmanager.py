@@ -66,13 +66,16 @@ class item_manager:
             required_quantity = recipe.get("quantity", 1)
             item_level = item.get("level", 0)
 
-            craftable_qty = 0
+            craftable_qty = float('inf')
             for required in required_items:
                 ingredient_code = required.get("code")
                 ingredient_qty = required.get("quantity", 0)
                 available_qty = combined_inventory.get(ingredient_code, 0)
                 times_can_craft = available_qty // ingredient_qty if ingredient_qty > 0 else 0
                 craftable_qty = min(craftable_qty, times_can_craft)
+
+            if craftable_qty == float('inf'):
+                craftable_qty = 0
 
             if must_be_craftable and craftable_qty <= 0:
                 continue

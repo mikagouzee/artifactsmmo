@@ -9,9 +9,10 @@ class gather_quest(quest):
         self.target = item_code
         self.type = "gather"
         self.source = None
-        self.target_quantity = quantity
+        self.quantity = quantity
         self.step = "GATHER"
         self.deposited = 0
+        self.progress = 0
         
     async def run(self, context, action, db):
         hero = context.current_hero
@@ -20,21 +21,23 @@ class gather_quest(quest):
             self.source = await db.resource.get_resource_by_drop(self.target)
         
         if self.step == "DEPOSIT":    
-            in_pockets = check_quantity_in_bag(hero.inventory, self.target)
+            in_pockets_before = check_quantity_in_bag(hero.inventory, self.target)
             context = await go_deposit_items(context, action, db, self.target)
-            self.deposited += in_pockets
+            self.deposited += in_pockets_before
             self.step = "GATHER"
         
-            if self.deposited >= self.target_quantity:
+            if self.deposited >= self.quantity or self.progress >= self.quantity:
                 return "COMPLETED"
             return "RUNNING"
 
-        in_pockets = check_quantity_in_bag(hero.inventory, self.target)
+        in_pockets_before = check_quantity_in_bag(hero.inventory, self.target)
         bag_full = check_bag_weight(hero.inventory) >= hero.inventory_max_items
 
-        if in_pockets + self.deposited >= self.target_quantity or bag_full:
+        if in_pockets_before + self.deposited >= self.quantity or bag_full:
             self.step = "DEPOSIT"
             return "RUNNING"
         
         context = await go_gather(context, action, db, self.source["code"])
+        in_pockets_after = check_quantity_in_bag(hero.inventory, self.target)
+        self.progress += (in_pockets_after - in_pockets_before)
         return "RUNNING"

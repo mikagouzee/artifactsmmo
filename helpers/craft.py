@@ -64,8 +64,8 @@ def check_available_resources(bank_inventory, hero_inventory):
 def check_ingredient_list(bag, craft):
   for ingredient in craft["items"]:
     hold_qty = check_quantity_in_bag(bag, ingredient["code"])
-    if  hold_qty < ingredient["quantity"]:
-      print(f"Missing {ingredient["quantity"] - hold_qty} {ingredient["code"]} ! Can't proceed with craft")
+    if hold_qty < ingredient["quantity"]:
+      print(f"Missing {ingredient['quantity'] - hold_qty} {ingredient['code']}! Can't proceed with craft.")
       return False
   return True  
 

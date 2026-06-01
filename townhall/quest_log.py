@@ -26,3 +26,4 @@ class quest_log:
     @property
     def is_empty(self) -> bool:
         return len(self.queue) == 0
+    

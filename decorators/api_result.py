@@ -30,17 +30,31 @@ def api_result(func):
 
 async def process_result(response, context):
   if "error" in response:
-      error_data = response.get("error", {})
-      error_code = error_data.get("code")
-      message = error_data.get("message")
-    # print(f"[{context.current_hero.name}] API Error {error_code}: {message}")
-      #error 499: cooldown, just wait longer
-      
-      #error 497 = inventory full, send hero to deposit stuff
+    error_data = response.get("error", {})
+    error_code = error_data.get("code")
+    message = error_data.get("message")
+    # Attempt to extract cooldown info from common places in the error payload
+    cd = None
+    if isinstance(error_data, dict):
+      cd = (error_data.get("cooldown", {}) or {}).get("total_seconds")
+      if cd is None:
+        cd = (error_data.get("data", {}) or {}).get("cooldown", {}).get("total_seconds")
 
-      # FUITE FIX: Si erreur, on force un sleep pour éviter le spam en boucle infinie
-      await asyncio.sleep(1)
-      return context
+    # If an explicit cooldown is provided, set the hero's next action time
+    if cd:
+      try:
+        cd_val = float(cd)
+        context.next_action_time = time.time() + cd_val
+      except Exception:
+        pass
+    # If error code indicates character in cooldown (499) but no cooldown value,
+    # set a small backoff to avoid tight retry loops
+    elif error_code == 499:
+      context.next_action_time = time.time() + 2
+
+    # Short sleep to yield control and avoid immediate retry storms
+    await asyncio.sleep(0.1)
+    return context
 
   data = response.get("data", {})
   cd = data.get("cooldown", {}).get("total_seconds", 0)

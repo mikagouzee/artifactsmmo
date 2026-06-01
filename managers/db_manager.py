@@ -29,9 +29,9 @@ class DatabaseManager:
 
         try:
             await cls._client.admin.command('ping')
-            print("Connected to mongo!")
+            print("Connected to MongoDB!")
         except Exception as e:
-            print(f'Error in connection : {e}')
+            print(f"Error in connection: {e}")
 
     
     @classmethod

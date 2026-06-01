@@ -11,7 +11,7 @@ async def go_equip(context, item_code, action:ActionController,db:db_controller,
     return context
 
   if check_quantity_in_bag(context.current_hero.inventory, item_code) >= quantity:
-    print(f'{context.current_hero.name} found {item_code} !.')
+    print(f"[{context.current_hero.name}] Found {item_code}.")
     context = await action.hero.equip(context, item_code, slot=slot, qtty=quantity)
   else:
     if check_quantity_in_bag(await action.bank.get_bank_inventory(), item_code) >= quantity:

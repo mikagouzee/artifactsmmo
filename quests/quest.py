@@ -1,6 +1,8 @@
 class quest:
   type: str
   target: str
+  quantity: int
+  progress: int
   
   def __init__(self, name:str):
     self.name = name

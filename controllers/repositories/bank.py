@@ -1,5 +1,5 @@
 from decorators.api_result import api_result
-from helpers import check_bag_weight, check_quantity_in_bag
+from helpers import check_quantity_in_bag
 
 
 class bank_repository:
@@ -31,6 +31,9 @@ class bank_repository:
                 return await self._request_wrapper("post", endpoint, json=payload)
         else: 
             quantity = check_quantity_in_bag(context.current_hero.inventory, item_code)
+            if quantity==0:
+                payload = {'x': context.current_hero.x, 'y': context.current_hero.y}
+                return await self._request_wrapper("post", f'/my/{context.current_hero.name}/action/move', json=payload)
             payload = [{'code': item_code, 'quantity': quantity}]
             return await self._request_wrapper("post", endpoint, json=payload)
 

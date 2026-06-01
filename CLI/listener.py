@@ -28,7 +28,7 @@ class Listener():
             continue
           self.handle(args, gamemaster)
         except Exception as e: 
-          print(f"Unexpected error : {e}")
+          print(f"Unexpected error: {e}")
 
 
   def init_parser(self):
@@ -53,7 +53,7 @@ class Listener():
       None
     )
     if not hero_context:
-      print(f"hero {args.hero} not found!")
+      print(f"Hero {args.hero} not found!")
       return
     
     match args.quest_type:
